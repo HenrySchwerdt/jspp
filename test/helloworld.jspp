@@ -1,0 +1,3 @@
+console.log("Hello World from JsPP");
+console.log(console);
+console.log(JSON);
