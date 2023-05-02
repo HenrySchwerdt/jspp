@@ -15,7 +15,7 @@ const UnexpectedTokenError = class UnexpectedTokenError extends Error {
         console.log()
         const lines = this.fileContent.split('\n')
 
-        console.log(`Error found in ${this.fileName}:${this.errorToken.row},${this.errorToken.col}\n`)
+        console.log(`Error found in ${this.fileName}:${this.errorToken.row}:${this.errorToken.col}\n`)
         if (this.errorToken.row > 1) {
             const number = `${this.errorToken.row - 1} |`
             console.log(ansicolor.cyan(number+'\t') + ansicolor.lightMagenta(lines[this.errorToken.row - 2]))
@@ -39,7 +39,7 @@ const GrammarError = class GrammarError extends Error {
         console.log(ansicolor.red("ERROR while Parsing:"))
         console.log(ansicolor.red(" -   " +this.message))
         const lines = this.fileContent.split('\n')
-        console.log(`Error found in ${this.fileName}:${this.falsyToken.row},${this.falsyToken.col + this.falsyToken.value.length}\n`)
+        console.log(`Error found in ${this.fileName}:${this.falsyToken.row}:${this.falsyToken.col + this.falsyToken.value.length}\n`)
         if (this.falsyToken.row > 1) {
             const number = `${this.falsyToken.row - 1} |`
             console.log(ansicolor.cyan(number+'\t') + ansicolor.lightMagenta(lines[this.falsyToken.row - 2]))

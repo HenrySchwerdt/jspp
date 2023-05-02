@@ -21,6 +21,7 @@ if (options.entry == undefined) {
   console.error("   -c    Compiles the program");
   console.error("ERROR: Provided no entry file to compile or to simulate.");
 }
+
 try {
   const parser = new Parser(options.entry)
   const program = parser.parse()
