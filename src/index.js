@@ -1,9 +1,7 @@
 const commandLineArgs = require("command-line-args");
-const ops = require("./opCodes");
 const interpreter = require("./interpreter");
 const compiler = require("./compiler");
-
-const program = [ops.push(34), ops.push(34), ops.plus(), ops.dump()];
+const parser = require("./parser")
 
 const optionDefinitions = [
   { name: "entry", type: String, defaultOption: true },
@@ -22,7 +20,7 @@ if (options.entry == undefined) {
   console.error("   -c    Compiles the program");
   console.error("ERROR: Provided no entry file to compile or to simulate.");
 }
-
+program = parser.parse(options.entry)
 if (options.sim == true) {
   interpreter.interpret(program);
 }

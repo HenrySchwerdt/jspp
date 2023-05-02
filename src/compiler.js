@@ -1,5 +1,6 @@
 const fs = require("fs");
 const { execSync } = require("child_process");
+const cHelper = require("./cHelper")
 const { OP_PUSH, OP_PLUS, OP_MINUS, OP_DUMP } = require("./opCodes.js");
 module.exports = (() => {
   const oDir = "build";
@@ -15,17 +16,36 @@ module.exports = (() => {
     execSync(`ld -o ${oDir}/output ${oDir}/output.o`);
   };
   const write = (chunk) => {
-    fs.appendFileSync(oDir + "/" +oFile, chunk);
+    fs.appendFileSync(oDir + "/" +oFile, chunk+"\n");
   }
   return {
     compile(program) {
       checkIfFileExistsAndDelete();
-      write("segment .text\n");
-      write("global _start\n");
-      write("_start:\n");
-      write("   mov rax, 60\n");
-      write("   mov rdi, 0\n");
-      write("   syscall\n");
+      cHelper.segment(write, ".text")
+      cHelper.dumpF(write)
+      cHelper.quitF(write, 0)
+      cHelper.entry(write)
+      for(let op of program) {
+        switch(op[0]) {
+          case OP_PUSH: {
+            cHelper.push(write, op[1])
+            break
+          }
+          case OP_PLUS: {
+            cHelper.plus(write)
+            break
+          }
+          case OP_MINUS: {
+            cHelper.minus(write)
+            break;
+          }
+          case OP_DUMP: {
+            cHelper.dump(write)
+            break;
+          }
+        }
+      }
+      cHelper.quit(write)
 
       compileAsm();
     },
