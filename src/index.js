@@ -23,7 +23,7 @@ if (options.entry == undefined) {
 }
 try {
   const parser = new Parser(options.entry)
-  program = parser.parse()
+  const program = parser.parse()
   if (options.sim == true) {
     const interpreter = new Interpreter()
     interpreter.interpret(program);
