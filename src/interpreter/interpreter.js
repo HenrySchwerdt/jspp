@@ -1,8 +1,8 @@
 const { OP_PUSH, OP_PLUS, OP_MINUS, OP_DUMP } = require("../opCodes.js");
 module.exports = class Interpreter {
     interpret(program) {
-        stack = [];
-        for (op of program) {
+        const stack = [];
+        for (let op of program) {
             switch (op[0]) {
                 case OP_PUSH:
                     stack.push(op[1]);
