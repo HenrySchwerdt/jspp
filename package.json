@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ansicolor": "^1.1.100",
     "command-line-args": "^5.2.1"
   }
 }
