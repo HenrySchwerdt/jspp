@@ -1,5 +1,5 @@
 const fs = require("fs")
-const { TK_DOT, TK_PLUS, TK_MINUS, TK_ERROR, TK_NUMBER, TK_EOF, Token } = require("./token");
+const { TK_DOT, TK_PLUS, TK_MINUS, TK_ERROR, TK_NUMBER, TK_EOF, Token, TK_EQUAL } = require("./token");
 const { UnexpectedTokenError } = require("./parsingErrors");
 
 module.exports = class Lexer {
@@ -59,6 +59,9 @@ module.exports = class Lexer {
             }
             case '-': {
                 return new Token(this.entryPoint, this.row, startCol, TK_MINUS, char)
+            }
+            case '=': {
+                return new Token(this.entryPoint, this.row, startCol, TK_EQUAL, char)
             }
             default: {
                 const errorToken = new Token(this.entryPoint, this.row, startCol, TK_ERROR, char)

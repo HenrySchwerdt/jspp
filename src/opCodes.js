@@ -7,6 +7,7 @@ module.exports = {
   OP_PUSH: gOp(),
   OP_PLUS: gOp(),
   OP_MINUS: gOp(),
+  OP_EQUAL: gOp(),
   OP_DUMP: gOp(),
   COUNT_OPS: gOp(),
   push(x) {
@@ -21,4 +22,7 @@ module.exports = {
   dump() {
     return [this.OP_DUMP];
   },
+  equal() {
+    return [this.OP_EQUAL];
+  }
 };

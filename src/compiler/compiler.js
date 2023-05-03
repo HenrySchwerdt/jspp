@@ -1,7 +1,7 @@
 const fs = require("fs")
 const { execSync } = require("child_process");
-const { segment, dumpF, quitF, entry, push, plus, minus, dump, quit } = require("./snippets");
-const { OP_PUSH, OP_PLUS, OP_MINUS, OP_DUMP } = require("../opCodes");
+const { segment, dumpF, quitF, entry, push, plus, minus, dump, quit, equal } = require("./snippets");
+const { OP_PUSH, OP_PLUS, OP_MINUS, OP_DUMP, OP_EQUAL } = require("../opCodes");
 module.exports = class Compiler {
     constructor(oDir, oFile) {
         this.oDir = oDir || "build"
@@ -44,6 +44,10 @@ module.exports = class Compiler {
               }
               case OP_MINUS: {
                 minus(write)
+                break;
+              }
+              case OP_EQUAL: {
+                equal(write)
                 break;
               }
               case OP_DUMP: {

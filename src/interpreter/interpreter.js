@@ -1,4 +1,4 @@
-const { OP_PUSH, OP_PLUS, OP_MINUS, OP_DUMP } = require("../opCodes.js");
+const { OP_PUSH, OP_PLUS, OP_MINUS, OP_DUMP, OP_EQUAL } = require("../opCodes.js");
 module.exports = class Interpreter {
     interpret(program) {
         const stack = [];
@@ -17,6 +17,12 @@ module.exports = class Interpreter {
                     const a = stack.pop();
                     const b = stack.pop();
                     stack.push(b - a);
+                    break;
+                }
+                case OP_EQUAL: {
+                    const a = stack.pop()
+                    const b = stack.pop()
+                    stack.push(a == b ? 1 : 0)
                     break;
                 }
                 case OP_DUMP: {

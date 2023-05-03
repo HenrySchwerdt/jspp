@@ -52,6 +52,14 @@ module.exports = {
         write("   sub   rbx, rax")
         write("   push  rbx")
     },
+    equal(write) {
+        write("   mov rcx, 0")
+        write("   mov rdx, 1")
+        write("   pop rax")
+        write("   pop rbx")
+        write("   cmp rax, rbx")
+        write("   cmove rcx, rdx")
+    },
     push(write, value) {
         write(`   push  ${value}`)
     },
@@ -63,6 +71,7 @@ module.exports = {
         write("   call  quit")
     },
     segment(write, name) {
+        write("BITS 64")
         write(`segment ${name}`);
     },
     entry(write) {

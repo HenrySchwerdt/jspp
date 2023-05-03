@@ -35,7 +35,6 @@ try {
     compiler.compile(program);
   }
 } catch(e) {
-  console.log(e)
   e.print()
 }
 
