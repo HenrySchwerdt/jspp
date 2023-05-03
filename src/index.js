@@ -2,6 +2,7 @@ const commandLineArgs = require("command-line-args");
 const Interpreter = require("./interpreter/interpreter");
 const Compiler = require("./compiler/compiler");
 const Parser = require("./parser/parser");
+const Lexer = require("./parser/lexer");
 
 
 const optionDefinitions = [
@@ -23,18 +24,20 @@ if (options.entry == undefined) {
 }
 
 try {
+
   const parser = new Parser(options.entry)
   const program = parser.parse()
   if (options.sim == true) {
     const interpreter = new Interpreter()
     interpreter.interpret(program);
   }
-  
+
   if (options.compile == true) {
     const compiler = new Compiler(null, null)
     compiler.compile(program);
   }
-} catch(e) {
+} catch (e) {
+  console.log(e)
   e.print()
 }
 

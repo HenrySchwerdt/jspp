@@ -1,4 +1,18 @@
+const offsets = {
+    'i8': 1,
+    'i16': 2,
+    'i32': 4,
+    'i64': 8
+}
+const types = {
+    'i8': 'BYTE',
+    'i16': 'WORD',
+    'i32': 'DWORD',
+    'i64': 'QWORD'
+}
 module.exports = {
+    offsets,
+    types,
     dumpF(write) {
         write("dump:")
         write("   mov   r9, -3689348814741910323")
@@ -67,6 +81,10 @@ module.exports = {
         write("   pop   rdi")
         write("   call  dump")
     },
+    print(write, basePointerOffset) {
+        write(`   mov edi, [rbp${basePointerOffset}]`)
+        write("   call dump")
+    },
     quit(write) {
         write("   call  quit")
     },
@@ -77,7 +95,20 @@ module.exports = {
     entry(write) {
         write("global _start");
         write("_start:");
+    },
+    startFn(write) {
+        write("   push rbp");
+        write("   mov  rbp, rsp");
+    },
+    endFn(write) {
+        write("   pop rdp")
+        write("   ret")
+    },
+    addVariable(write, basePointerOffset, num, type) {
+        write(`   mov ${types[type]} [rbp${basePointerOffset}], ${num}`)
     }
 
-    
+
+
+
 }

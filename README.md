@@ -3,10 +3,13 @@
 # Grammar
 
 ```
-statement -> expr_stmt 
-           | dump_stmt
-dump_stmt -> .
-expr_stmt -> term (operator term)*
+program -> statement*
+statement -> varDec
+            | ifStmt
+            | exprStmt
+expression -> callExpr
+            | binaryExpr
+            | unaryExpr
 
 
 ```

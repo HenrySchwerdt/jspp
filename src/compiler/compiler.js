@@ -1,11 +1,24 @@
 const fs = require("fs")
 const { execSync } = require("child_process");
-const { segment, dumpF, quitF, entry, push, plus, minus, dump, quit, equal } = require("./snippets");
-const { OP_PUSH, OP_PLUS, OP_MINUS, OP_DUMP, OP_EQUAL } = require("../opCodes");
+const { segment, dumpF, quitF, entry, push, plus, minus, dump, quit, equal, offsets, addVariable, startFn, print } = require("./snippets");
 module.exports = class Compiler {
     constructor(oDir, oFile) {
-        this.oDir = oDir || "build"
-        this.oFile = oFile || "output.asm"
+        this.oDir = oDir || "build";
+        this.oFile = oFile || "output.asm";
+        this.basePointerOffset = [];
+        this.environment = [{}];
+        this.currentEnvironemnt = 0;
+        this.currentBasePointerOffset = 0;
+        this.basePointerOffset.push(0)
+    }
+    _subCurrentBasePointerOffset(sub) {
+      this.basePointerOffset[this.currentBasePointerOffset] -= sub
+    }
+    _registerVariable(name, offset, type) {
+      this.environment[this.currentEnvironemnt][name] = {offset, type}
+    }
+    _getVariable(name) {
+      return this.environment[this.currentEnvironemnt][name]
     }
     _preCompile() {
         if (fs.existsSync(this.oDir)) {
@@ -20,7 +33,46 @@ module.exports = class Compiler {
     _write(path, chunk) {
         fs.appendFileSync(path, chunk+"\n");
     }
+    _compileDeclarator(declarator, write) {
+      const varName = declarator.id.name
+      const varValue = declarator.init.value
+      const type = declarator.init.valueType
+      this._subCurrentBasePointerOffset(offsets[type])
+      const varOffset = this.basePointerOffset[this.currentBasePointerOffset]
+      this._registerVariable(varName, varOffset, type)
+      addVariable(write, varOffset, varValue, type)
+    }
+    _compileDeclaration(declaration, write) {
+      for(let dec of declaration.declarations) {
+        this._compileDeclarator(dec, write)
+      }
+    }
+    _compileCallExpression(expression, write) {
+      if (expression.name.name == "print") {
+        if (expression.args[0].type == "Identifier") {
+          const vari = this._getVariable(expression.args[0].name)
+          print(write, vari.offset)
+        }
+      }
+    }
 
+    _compileExpression(exprStatment, write) {
+      switch(exprStatment.expression.type) {
+        case "CallExpression":
+          this._compileCallExpression(exprStatment.expression, write)
+          break
+      }
+    }
+    _compileStmt(stmt, write) {
+      switch(stmt.type) {
+        case "VariableDeclaration":
+          this._compileDeclaration(stmt, write)
+          break
+        case "ExpressionStatement":
+          this._compileExpression(stmt, write)
+          break
+      }
+    }
     compile(program) {
         // helper 
         const path = this.oDir + "/" + this.oFile
@@ -29,35 +81,15 @@ module.exports = class Compiler {
         }
         this._preCompile()
         segment(write, ".text")
-        dumpF(write)
         quitF(write, 0)
+        dumpF(write)
         entry(write)
-        for(let op of program) {
-            switch(op[0]) {
-              case OP_PUSH: {
-                push(write, op[1])
-                break
-              }
-              case OP_PLUS: {
-                plus(write)
-                break
-              }
-              case OP_MINUS: {
-                minus(write)
-                break;
-              }
-              case OP_EQUAL: {
-                equal(write)
-                break;
-              }
-              case OP_DUMP: {
-                dump(write)
-                break;
-              }
-            }
-          }
-        quit(write)  
-
+        startFn(write)
+        
+        for (let stmt of program.body) {
+          this._compileStmt(stmt, write)
+        }
+        quit(write)
         this._postCompile()
     }
 }
