@@ -1,6 +1,6 @@
 const commandLineArgs = require("command-line-args");
 const Interpreter = require("./interpreter/interpreter");
-const Compiler = require("./compiler/compiler");
+const Compiler = require("./compiler/asmCompiler");
 const Parser = require("./parser/parser");
 const Lexer = require("./parser/lexer");
 
@@ -27,6 +27,7 @@ try {
 
   const parser = new Parser(options.entry)
   const program = parser.parse()
+  console.log(JSON.stringify(program, null, 2))
   if (options.sim == true) {
     const interpreter = new Interpreter()
     interpreter.interpret(program);

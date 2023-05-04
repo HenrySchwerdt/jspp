@@ -155,7 +155,7 @@ module.exports = class Parser {
         const left = this._term()
         if (this._peek().type == TK_PLUS || this._peek().type == TK_MINUS) {
             const operator = this._consume().value
-            const right = this._term()
+            const right = this._binaryExpression()
             const end = this._peek().cursor
             return new BinaryExpression(start, end, left, operator, right)
         }

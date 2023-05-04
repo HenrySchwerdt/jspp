@@ -15,6 +15,7 @@ module.exports = {
     types,
     dumpF(write) {
         write("dump:")
+        write("   mov  rbp, rsp")
         write("   mov   r9, -3689348814741910323")
         write("   sub   rsp, 40")
         write("   mov   BYTE [rsp+31], 10")
@@ -54,17 +55,17 @@ module.exports = {
         write(`   mov rdi, ${exitCode}`)
         write("   syscall")
     },
-    plus(write) {
-        write("   pop   rax")
-        write("   pop   rbx")
+    plus(write, offset1, offset2, offset3, type) {
+        write(`   mov   rax, [rbp${offset1}]`)
+        write(`   mov   rbx, [rbp${offset2}]`)
         write("   add   rax, rbx")
-        write("   push  rax")
+        write(`   mov   ${types[type]} [rbp${offset3}], rax`)
     },
-    minus(write) {
-        write("   pop   rax")
-        write("   pop   rbx")
+    minus(write, offset1, offset2, offset3, type) {
+        write(`   mov   rax, [rbp${offset1}]`)
+        write(`   mov   rbx, [rbp${offset2}]`)
         write("   sub   rbx, rax")
-        write("   push  rbx")
+        write(`   mov   ${types[type]} [rbp${offset3}], rbx`)
     },
     equal(write) {
         write("   mov rcx, 0")
@@ -82,11 +83,15 @@ module.exports = {
         write("   call  dump")
     },
     print(write, basePointerOffset) {
-        write(`   mov edi, [rbp${basePointerOffset}]`)
+        write(`   mov  edi, [rbp${basePointerOffset}]`)
+        write("   call dump")
+    },
+    printL(write, value) {
+        write(`   mov edi, ${value}`)
         write("   call dump")
     },
     quit(write) {
-        write("   call  quit")
+        write("   call quit")
     },
     segment(write, name) {
         write("BITS 64")
