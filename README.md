@@ -9,9 +9,12 @@ program: statement_list;
 
 statement_list: statement+;
 
-statment: assign_statement;
+statment: delaration_statement
+        | assign_statement;
 
-assign_statement: 'let' IDENT (':' TYPE)? = expression;
+delaration_statement: 'let' IDENT (':' TYPE)? = expression;
+
+assign_statement: IDENT = expression;
 
 expression:  expression '+' term
           |  expression '-' term
