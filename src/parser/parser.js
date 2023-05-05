@@ -2,7 +2,7 @@ const Lexer = require("./lexer")
 const ops = require("../opCodes");
 const { TK_EOF, TK_DOT, TK_NUMBER, TK_PLUS, TK_MINUS, TK_EQUAL, TK_LET, TK_IDENTIFIER, TK_COLON, TK_I32, TK_COMMA, TK_OPAREN, TK_SLASH, TK_STAR, TK_CPAREN } = require("./token");
 const { GrammarError } = require("./parsingErrors");
-const { Program, Identifier, Literal, VariableDeclarator, VariableDeclaration, ExpressionStatement, BinaryExpression, AssigmentExpression, CallExpression } = require("./ast");
+const { Program, Identifier, Literal, VariableDeclarator, VariableDeclaration, ExpressionStatement, BinaryExpression, AssigmentExpression, CallExpression } = require("../representation/ast");
 module.exports = class Parser {
 
     constructor(entrypoint) {

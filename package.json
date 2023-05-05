@@ -13,6 +13,10 @@
   "license": "ISC",
   "dependencies": {
     "ansicolor": "^1.1.100",
-    "command-line-args": "^5.2.1"
+    "command-line-args": "^5.2.1",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
   }
 }
