@@ -1,6 +1,7 @@
-import { readFileSync } from "fs";
+import { readFileSync, existsSync }  from  "fs";
 import { Token, TokenType, createToken } from "./token";
-import { UnexpectedTokenError } from "./parsingErrors";
+import { BSFileNotFoundException, BSLexException } from "../exceptions/exceptions";
+
 export class Lexer {
     private readonly entryPoint: string;
     private fileContent: string;
@@ -10,6 +11,9 @@ export class Lexer {
     
     constructor(entryPoint: string) {
         this.entryPoint = entryPoint;
+        if (!existsSync(this.entryPoint)) {
+            throw new BSFileNotFoundException(this.entryPoint)
+        }
         this.fileContent = readFileSync(entryPoint).toString()
     }
 
@@ -62,7 +66,6 @@ export class Lexer {
 
     private number(): Token {
         let number = ""
-        const startCol = this.col
         while(!this.isEOF() && this.isNumeric()) {
             number += this.consume()
         }
@@ -147,7 +150,7 @@ export class Lexer {
             }
             default: {
                 const errorToken = createToken(TokenType.TK_ERROR, this.row, startCol, this.entryPoint, this.fileContent, char)
-                throw new UnexpectedTokenError(errorToken, this.entryPoint)
+                throw new BSLexException(errorToken, this.entryPoint)
             }
         }
     }
