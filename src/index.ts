@@ -1,8 +1,8 @@
-import commandLineArgs from "command-line-args"
+import commandLineArgs from "command-line-args";
 import { Lexer } from "./parser/lexer";
 import { BSException } from "./exceptions/exceptions";
 import { Parser } from "./parser/parser";
-
+import { SimplificationPass } from "./analysis/simplification";
 
 const optionDefinitions = [
   { name: "entry", type: String, defaultOption: true },
@@ -22,10 +22,13 @@ if (options.entry == undefined) {
   console.error("ERROR: Provided no entry file to compile or to simulate.");
 } else {
   try {
-    const lexer = new Lexer(options.entry)
-    const tokens = lexer.tokenize()
-    const parser = new Parser(tokens)
-    const ast = parser.parse()
+    const lexer = new Lexer(options.entry);
+    const tokens = lexer.tokenize();
+    const parser = new Parser(tokens);
+    const ast = parser.parse();
+    const pass = new SimplificationPass();
+    ast.accept(pass);
+    console.log(JSON.stringify(ast, null, 2));
     // const parser = new Parser(options.entry)
     // const program = parser.parse()
     // console.log(JSON.stringify(program, null, 2))
@@ -33,19 +36,15 @@ if (options.entry == undefined) {
     //   const interpreter = new Interpreter()
     //   interpreter.interpret(program);
     // }
-  
+
     // if (options.compile == true) {
     //   const compiler = new Compiler(null, null)
     //   compiler.compile(program);
     // }
   } catch (e) {
-    (e as BSException).print()
+    console.log(e);
+    (e as BSException).print();
     // console.log(e)
     // e.print()
   }
-  
 }
-
-
-
-
