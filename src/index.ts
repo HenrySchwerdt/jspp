@@ -1,6 +1,7 @@
 import commandLineArgs from "command-line-args"
 import { Lexer } from "./parser/lexer";
 import { BSException } from "./exceptions/exceptions";
+import { Parser } from "./parser/parser";
 
 
 const optionDefinitions = [
@@ -22,7 +23,9 @@ if (options.entry == undefined) {
 } else {
   try {
     const lexer = new Lexer(options.entry)
-    console.log(lexer.tokenize())
+    const tokens = lexer.tokenize()
+    const parser = new Parser(tokens)
+    const ast = parser.parse()
     // const parser = new Parser(options.entry)
     // const program = parser.parse()
     // console.log(JSON.stringify(program, null, 2))

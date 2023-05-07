@@ -16,8 +16,8 @@ delaration_statement: 'let' IDENT (':' TYPE)? = expression;
 
 assign_statement: IDENT = expression;
 
-expression:  expression '+' term
-          |  expression '-' term
+expression:  term '+' expression
+          |  term '-' expression
           |  term;
 
 term: term '*' factor

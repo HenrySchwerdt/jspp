@@ -1,4 +1,4 @@
-import { readFileSync, existsSync }  from  "fs";
+import { readFileSync, existsSync } from "fs";
 import { Token, TokenType, createToken } from "./token";
 import { BSFileNotFoundException, BSLexException } from "../exceptions/exceptions";
 
@@ -8,7 +8,7 @@ export class Lexer {
     private cursor: number = 0;
     private row: number = 1;
     private col: number = 1;
-    
+
     constructor(entryPoint: string) {
         this.entryPoint = entryPoint;
         if (!existsSync(this.entryPoint)) {
@@ -54,46 +54,47 @@ export class Lexer {
     }
 
     private isAlpha(): boolean {
-        return /^[a-zA-Z]*$/.test(this.peek()) 
+        return /^[a-zA-Z]*$/.test(this.peek())
     }
 
     private skip() {
         const ignoredCharacters = [' ', '\t', '\r', '\n'].join("")
-        while(!this.isEOF() && ignoredCharacters.includes(this.peek())) {
+        while (!this.isEOF() && ignoredCharacters.includes(this.peek())) {
             this.consume()
         }
     }
 
     private number(): Token {
         let number = ""
-        while(!this.isEOF() && this.isNumeric()) {
+        while (!this.isEOF() && this.isNumeric()) {
             number += this.consume()
         }
         return createToken(TokenType.TK_NUMBER,
-             this.row,
-             this.col, 
-             this.entryPoint, 
-             this.fileContent, 
-             number
+            this.row,
+            this.col,
+            this.entryPoint,
+            this.fileContent,
+            number
         )
     }
 
     private keyword(): Token {
-        const keywords: [string, TokenType][] = [['let', TokenType.TK_LET], ['i32', TokenType.TK_I32]]
+        const keywords: [string, TokenType][] = [['let', TokenType.TK_LET], ['const', TokenType.TK_LET], ['i8', TokenType.TK_I8], ['i16', TokenType.TK_I16],
+        ['i32', TokenType.TK_I32], ['i64', TokenType.TK_I64]]
         const startCol = this.col
         for (let keyword of keywords) {
             const currentWord = this.npeek(keyword[0].length)
             if (currentWord == keyword[0]) {
-                for(let i = 0; i<keyword[0].length; i++) {
+                for (let i = 0; i < keyword[0].length; i++) {
                     this.consume()
                 }
                 return createToken(keyword[1],
-                     this.row, 
-                     startCol, 
-                     this.entryPoint, 
-                     this.fileContent, 
-                     currentWord
-                ) 
+                    this.row,
+                    startCol,
+                    this.entryPoint,
+                    this.fileContent,
+                    currentWord
+                )
             }
         }
         return this.identifier()
@@ -102,16 +103,16 @@ export class Lexer {
     private identifier(): Token {
         let identifier = ""
         const startCol = this.col
-        while(!this.isEOF() && (this.isNumeric() || this.isAlpha())) {
+        while (!this.isEOF() && (this.isNumeric() || this.isAlpha())) {
             identifier += this.consume()
         }
         return createToken(TokenType.TK_IDENTIFIER,
-             this.row, 
-             startCol, 
-             this.entryPoint, 
-             this.fileContent, 
-             identifier
-            )
+            this.row,
+            startCol,
+            this.entryPoint,
+            this.fileContent,
+            identifier
+        )
     }
 
     private sdtokens(): Token {
@@ -157,11 +158,11 @@ export class Lexer {
 
     public tokenize(): Token[] {
         const tokens: Token[] = []
-        while(!this.isEOF()) {
+        while (!this.isEOF()) {
             this.skip()
             if (this.isNumeric()) {
                 tokens.push(this.number())
-            } else if(this.isAlpha()) {
+            } else if (this.isAlpha()) {
                 tokens.push(this.keyword())
             } else {
                 tokens.push(this.sdtokens())
