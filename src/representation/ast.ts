@@ -20,16 +20,33 @@ export function isComparison(op: Operator): boolean {
     return !isArithmetic(op);
 }
 
-export interface Visitable {
-
+export interface Visitor {
+    visit(ctx: Program): void;
+    visit(ctx: DeclarationStatement): void;
+    visit(ctx: AssignStatement): void;
+    visit(ctx: DeclarationStatement): void;
+    visit(ctx: BinaryExpression): void;
+    visit(ctx: VariableExpression): void;
+    visit(ctx: I8LiteralExpression): void;
+    visit(ctx: I16LiteralExpression): void;
+    visit(ctx: I32LiteralExpression): void;
+    visit(ctx: I64LiteralExpression): void;
+    visit(ctx: StrLiteralExpression): void;
+    visit(ctx: BoolLiteralExpression): void;
+    visit(ctx: F32LiteralExpression): void;
+    visit(ctx: F64LiteralExpression): void;
+    visit(ctx: Variable): void;
 }
 
-export abstract class Node implements Visitable {
+
+
+export abstract class Node {
     public readonly position: Position;
 
     constructor(position: Position) {
         this.position = position
     }
+    abstract accept(v: Visitor): void
 }
 
 export class Program extends Node {
@@ -37,6 +54,9 @@ export class Program extends Node {
     constructor(position: Position, body: Statement[]) {
         super(position)
         this.body = body
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
 
@@ -54,6 +74,9 @@ export class DeclarationStatement extends Statement {
         this.kind = kind;
         this.declarations = declarations
     }
+    accept(v: Visitor): void {
+        v.visit(this)
+    }
 }
 
 export class AssignStatement extends Statement {
@@ -63,6 +86,9 @@ export class AssignStatement extends Statement {
         super(position)
         this.target = target
         this.value = value
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
 
@@ -83,6 +109,9 @@ export class BinaryExpression extends Expression {
         this.leftOperand = leftOperand
         this.rightOperand = rightOperand
     }
+    accept(v: Visitor): void {
+        v.visit(this)
+    }
 }
 
 export class VariableExpression extends Expression {
@@ -90,6 +119,9 @@ export class VariableExpression extends Expression {
     constructor(position: Position, variable: Variable) {
         super(position)
         this.variable = variable
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
 
@@ -100,6 +132,9 @@ export class I8LiteralExpression extends Expression {
         super(position)
         this.value = value
     }
+    accept(v: Visitor): void {
+        v.visit(this)
+    }
 }
 
 export class I16LiteralExpression extends Expression {
@@ -108,6 +143,9 @@ export class I16LiteralExpression extends Expression {
     constructor(position: Position, value: number) {
         super(position)
         this.value = value
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
 
@@ -118,6 +156,9 @@ export class I32LiteralExpression extends Expression {
         super(position)
         this.value = value
     }
+    accept(v: Visitor): void {
+        v.visit(this)
+    }
 }
 
 export class I64LiteralExpression extends Expression {
@@ -126,6 +167,9 @@ export class I64LiteralExpression extends Expression {
     constructor(position: Position, value: number) {
         super(position)
         this.value = value
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
 
@@ -136,6 +180,9 @@ export class F32LiteralExpression extends Expression {
         super(position)
         this.value = value
     }
+    accept(v: Visitor): void {
+        v.visit(this)
+    }
 }
 
 export class F64LiteralExpression extends Expression {
@@ -144,6 +191,9 @@ export class F64LiteralExpression extends Expression {
     constructor(position: Position, value: number) {
         super(position)
         this.value = value
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
 
@@ -154,6 +204,9 @@ export class BoolLiteralExpression extends Expression {
         super(position)
         this.value = value
     }
+    accept(v: Visitor): void {
+        v.visit(this)
+    }
 }
 
 export class StrLiteralExpression extends Expression {
@@ -162,6 +215,9 @@ export class StrLiteralExpression extends Expression {
     constructor(position: Position, value: string) {
         super(position)
         this.value = value
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
 
@@ -173,5 +229,8 @@ export class Variable extends Node {
         super(position)
         this.name = name
         this.type = type
+    }
+    accept(v: Visitor): void {
+        v.visit(this)
     }
 }
