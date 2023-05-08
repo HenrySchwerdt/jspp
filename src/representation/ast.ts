@@ -39,6 +39,7 @@ export function isComparison(op: Operator): boolean {
 }
 
 export abstract class Visitor {
+  abstract visitFnDeclaration(ctx: FnDeclaration): void;
   abstract visitProgram(ctx: Program): void;
   abstract visitDeclarationStatement(ctx: DeclarationStatement): void;
   abstract visitAssignStatement(ctx: AssignStatement): void;
@@ -53,6 +54,8 @@ export abstract class Visitor {
   abstract visitF32LiteralExpression(ctx: F32LiteralExpression): void;
   abstract visitF64LiteralExpression(ctx: F64LiteralExpression): void;
   abstract visitVariable(ctx: Variable): void;
+  abstract visitCallExpression(ctx: CallExpression): void;
+  abstract visitCallStatement(ctx: CallStatement): void;
 }
 
 export abstract class Node {
@@ -80,6 +83,37 @@ export abstract class Statement extends Node {
     super(position);
   }
 }
+
+
+export class FnDeclaration extends Statement {
+    public returnType: Type
+    public name: string
+    public paramter: Variable[]
+    public body: Statement[]
+    constructor(position: Position, name: string, parameter: Variable[], body: Statement[], returnType: Type) {
+        super(position)
+        this.name = name
+        this.paramter = parameter
+        this.body = body
+        this.returnType = returnType
+    }
+
+    accept(v: Visitor): void {
+        v.visitFnDeclaration(this)
+    }
+}
+
+export class CallStatement extends Statement {
+    public callExpression: CallExpression
+    constructor(position: Position, callExpression: CallExpression) {
+        super(position)
+        this.callExpression = callExpression
+    }
+    accept(v: Visitor): void {
+        v.visitCallStatement(this)
+    }
+}
+
 
 export class DeclarationStatement extends Statement {
   public kind: VarKind;
@@ -116,6 +150,21 @@ export abstract class Expression extends Node {
   constructor(position: Position) {
     super(position);
   }
+}
+
+export class CallExpression extends Expression {
+    public name: string
+    public paramters: Expression[]
+    constructor(position: Position, name: string, parameters: Expression[]) {
+        super(position)
+        this.name = name
+        this.paramters = parameters
+    }
+
+    accept(v: Visitor): void {
+       v.visitCallExpression(this)
+    }
+    
 }
 
 export class BinaryExpression extends Expression {

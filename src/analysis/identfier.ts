@@ -7,6 +7,10 @@ export class IdentifierPass extends EmptyVisitor {
     private isDeclaration: boolean = false
     private kind: VarKind | undefined = undefined
 
+    pass(ast: Program): void {
+        ast.accept(this)
+    }
+
     visitProgram(ctx: Program): void {
         for (let stmt of ctx.body) {
             stmt.accept(this);

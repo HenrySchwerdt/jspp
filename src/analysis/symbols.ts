@@ -1,8 +1,13 @@
 import { BSCompileException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, BoolLiteralExpression, DeclarationStatement, F32LiteralExpression, F64LiteralExpression, I16LiteralExpression, I32LiteralExpression, I64LiteralExpression, I8LiteralExpression, Program, StrLiteralExpression, Type, VarKind, Variable, VariableExpression, Visitor } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BoolLiteralExpression, CallExpression, CallStatement, DeclarationStatement, F32LiteralExpression, F64LiteralExpression, FnDeclaration, I16LiteralExpression, I32LiteralExpression, I64LiteralExpression, I8LiteralExpression, Program, StrLiteralExpression, Type, VarKind, Variable, VariableExpression, Visitor } from "../representation/ast";
 
 export class EmptyVisitor extends Visitor {
-
+  visitCallExpression(ctx: CallExpression): void {
+  }
+  visitCallStatement(ctx: CallStatement): void {
+  }
+  visitFnDeclaration(ctx: FnDeclaration): void {
+  }
   visitProgram(ctx: Program): void {
   }
   visitDeclarationStatement(ctx: DeclarationStatement): void {

@@ -79,8 +79,18 @@ export class Lexer {
     }
 
     private keyword(): Token {
-        const keywords: [string, TokenType][] = [['let', TokenType.TK_LET], ['const', TokenType.TK_CONST], ['i8', TokenType.TK_I8], ['i16', TokenType.TK_I16],
-        ['i32', TokenType.TK_I32], ['i64', TokenType.TK_I64]]
+        const keywords: [string, TokenType][] = [
+            ['let', TokenType.TK_LET],
+            ['const', TokenType.TK_CONST],
+            ['i8', TokenType.TK_I8],
+            ['i16', TokenType.TK_I16],
+            ['i32', TokenType.TK_I32],
+            ['i64', TokenType.TK_I64],
+            ['void', TokenType.TK_VOID],
+            ['fn', TokenType.TK_FN],
+            ['if', TokenType.TK_IF],
+            ['else', TokenType.TK_ELSE]
+        ]
         const startCol = this.col
         for (let keyword of keywords) {
             const currentWord = this.npeek(keyword[0].length)
@@ -136,6 +146,12 @@ export class Lexer {
             }
             case ')': {
                 return createToken(TokenType.TK_CPAREN, this.row, startCol, this.entryPoint, this.fileContent, char)
+            }
+            case '{': {
+                return createToken(TokenType.TK_OBRACE, this.row, startCol, this.entryPoint, this.fileContent, char)
+            }
+            case '}': {
+                return createToken(TokenType.TK_CBRACE, this.row, startCol, this.entryPoint, this.fileContent, char)
             }
             case '*': {
                 return createToken(TokenType.TK_STAR, this.row, startCol, this.entryPoint, this.fileContent, char)

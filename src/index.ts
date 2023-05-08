@@ -4,6 +4,7 @@ import { BSException } from "./exceptions/exceptions";
 import { Parser } from "./parser/parser";
 import { SimplificationPass } from "./analysis/simplification";
 import { IdentifierPass } from "./analysis/identfier";
+import { Interpreter } from "./interpreter/interpreter";
 
 const optionDefinitions = [
   { name: "entry", type: String, defaultOption: true },
@@ -29,8 +30,10 @@ if (options.entry == undefined) {
     const ast = parser.parse();
     const simplePass = new SimplificationPass();
     const varPass = new IdentifierPass();
-    ast.accept(simplePass);
+    const interpret = new Interpreter()
+    // ast.accept(simplePass);
     ast.accept(varPass)
+    interpret.interpret(ast)
     // const parser = new Parser(options.entry)
     // const program = parser.parse()
     // console.log(JSON.stringify(program, null, 2))
@@ -44,6 +47,7 @@ if (options.entry == undefined) {
     //   compiler.compile(program);
     // }
   } catch (e) {
+    console.log(e);
     (e as BSException).print();
   }
 }

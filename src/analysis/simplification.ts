@@ -21,6 +21,11 @@ import { EmptyVisitor } from "./symbols";
 export class SimplificationPass extends EmptyVisitor {
   lastNode: Node | undefined = undefined;
   isLeft: boolean | undefined = undefined;
+  
+  pass(ast: Program): void {
+    ast.accept(this)
+  }
+
   visitProgram(ctx: Program): void {
     for (let stmt of ctx.body) {
       this.lastNode = stmt;

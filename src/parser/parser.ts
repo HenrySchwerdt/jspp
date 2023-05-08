@@ -1,5 +1,5 @@
 import { BSParseException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, DeclarationStatement, Expression, I32LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression } from "../representation/ast";
+import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, I32LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression } from "../representation/ast";
 import { Position, Token, TokenType } from "./token";
 
 export class Parser {
@@ -48,28 +48,23 @@ export class Parser {
     }
 
     private term(): Expression {
-        const pos = this.peek().position
-        if ([TokenType.TK_STAR, TokenType.TK_SLASH].includes(this.npeek(1).type)) {
-            const left = this.factor()
+        let left = this.factor()
+        while([TokenType.TK_STAR, TokenType.TK_SLASH].includes(this.peek().type)) {
             const operator = this.consume().type == TokenType.TK_STAR ? Operator.MUL : Operator.DIV;
             const right = this.factor()
-            return new BinaryExpression(pos, operator, left, right)
+            left = new BinaryExpression(left.position, operator, left, right)
         }
-        return this.factor()
+        return left
     }
 
     private expression(): Expression {
-        const pos = this.peek().position
-        if ([TokenType.TK_PLUS, TokenType.TK_MINUS, TokenType.TK_STAR, TokenType.TK_SLASH].includes(this.npeek(1).type)) {
-            // Binary Expression
-            const left = this.term()
+        let left = this.term()
+        while([TokenType.TK_PLUS, TokenType.TK_MINUS].includes(this.peek().type)) {
             const operator = this.consume().type == TokenType.TK_PLUS ? Operator.ADD : Operator.SUB;
-            const right = this.expression()
-            return new BinaryExpression(pos, operator, left, right)
-
-        } else {
-            return this.term()
+            const right = this.term()
+            left = new BinaryExpression(left.position, operator, left, right) 
         }
+        return left
     }
 
     private declarationStmt(): DeclarationStatement {
@@ -124,10 +119,30 @@ export class Parser {
         const value: Expression = this.expression()
         return new AssignStatement(position, variable, value)
     }
-
+    private callExpression() {
+        const startPos = this.peek().position
+        const name = this.consume()
+        this.consume()
+        if (this.peek().type == TokenType.TK_CPAREN) {
+            return new CallExpression(startPos, name.value, [])
+        }
+        const parameter = [this.expression()]
+        while(this.peek().type == TokenType.TK_COMMA) {
+            parameter.push(this.expression())
+        }
+        this.consume()
+        return new CallExpression(startPos, name.value, parameter)
+    }
+    private callStmt() {
+        const startPos = this.peek().position
+        const callExpression = this.callExpression()
+        return new CallStatement(startPos, callExpression)
+    }
     private stmt(): Statement {
         if (this.peek().type == TokenType.TK_LET || this.peek().type == TokenType.TK_CONST) {
             return this.declarationStmt()
+        } else if (this.peek().type == TokenType.TK_IDENTIFIER && this.npeek(1).type == TokenType.TK_OPAREN) {
+            return this.callStmt()
         } else if (this.peek().type == TokenType.TK_IDENTIFIER) {
             return this.assignmentStmt()
         } else {
