@@ -1,5 +1,5 @@
 import { EmptyVisitor } from "../analysis/symbols";
-import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, LiteralExpression, Operator, Program, Variable, VariableExpression } from "../representation/ast";
+import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Variable, VariableExpression } from "../representation/ast";
 export class STD {
     env: Environment
     constructor(env: Environment) {
@@ -10,10 +10,10 @@ export class STD {
         this.initPrintLn()
     }
     initPrint() {
-        this.env.declare("print", (x: any) => x ? process.stdout.write(x+""): process.stdout.write("") )
+        this.env.declare("print", (x: any) => x ? process.stdout.write(x + "") : process.stdout.write(""))
     }
     initPrintLn() {
-        this.env.declare("println", (x: any) => x ? process.stdout.write(x+"\n"): process.stdout.write("\n"))
+        this.env.declare("println", (x: any) => x ? process.stdout.write(x + "\n") : process.stdout.write("\n"))
     }
 }
 
@@ -48,7 +48,7 @@ export class Environment {
 }
 
 export class Interpreter extends EmptyVisitor {
-    private readonly env : Environment = new Environment(undefined)
+    private readonly env: Environment = new Environment(undefined)
     private isDec: boolean = false
     constructor() {
         super()
@@ -56,7 +56,7 @@ export class Interpreter extends EmptyVisitor {
     }
     public interpret(ast: Program) {
         ast.accept(this)
-        
+
     }
     visitCallExpression(ctx: CallExpression): void {
         this.evaluateExpression(ctx)
@@ -67,7 +67,7 @@ export class Interpreter extends EmptyVisitor {
     visitFnDeclaration(ctx: FnDeclaration): void {
     }
     visitProgram(ctx: Program): void {
-        for(let stmt of ctx.body) {
+        for (let stmt of ctx.body) {
             stmt.accept(this)
         }
     }
@@ -86,6 +86,13 @@ export class Interpreter extends EmptyVisitor {
             this.env.reassign(ctx.target.name, value)
         }
     }
+    visitIfStatement(ctx: IfStatement): void {
+        if (this.evaluateExpression(ctx.condition)) {
+            ctx.consequent.body.map(x => x.accept(this))
+        } else if (ctx.alternate) {
+            ctx.alternate.body.map(x => x.accept(this))
+        }
+    }
     visitBinaryExpression(ctx: BinaryExpression): void {
     }
     visitVariableExpression(ctx: VariableExpression): void {
@@ -99,15 +106,25 @@ export class Interpreter extends EmptyVisitor {
         if (expr instanceof BinaryExpression) {
             const x = this.evaluateExpression(expr.leftOperand)
             const y = this.evaluateExpression(expr.rightOperand)
-            switch(expr.operator) {
+            switch (expr.operator) {
                 case Operator.ADD:
                     return x + y
                 case Operator.SUB:
                     return x - y
                 case Operator.DIV:
-                    return Math.floor(x/y)
+                    return Math.floor(x / y)
                 case Operator.MUL:
                     return x * y
+                case Operator.EQU:
+                    return x == y
+                case Operator.GRE:
+                    return x >= y
+                case Operator.GRT:
+                    return x > y
+                case Operator.LSE:
+                    return x <= y
+                case Operator.LST:
+                    return x < y
             }
         }
         if (expr instanceof LiteralExpression) {
@@ -119,5 +136,5 @@ export class Interpreter extends EmptyVisitor {
             fn(...evaluatedParamters)
         }
     }
-    
+
 }

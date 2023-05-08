@@ -1,7 +1,9 @@
-const TEST: i32 = 200
-let x = 10, y = 10
-y = (10 + 3) * 10 <= 10
-println(y)
-println()
-println(y + 10)
-println(TEST)
+let x = 10, y = 10, z = 20
+if (x == y) {
+    if (z >= 10) {
+        println(z)
+    }
+    println(x)
+} else {
+    println(y)
+}

@@ -197,7 +197,6 @@ export class Parser {
         const condition = this.expression()
         this.match(TokenType.TK_CPAREN, ')')
         const consequent = this.blockStmt()
-        this.consume()
         let alternate: BlockStatement | undefined = undefined
         if (this.peek().type == TokenType.TK_ELSE) {
             this.consume()
