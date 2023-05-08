@@ -87,9 +87,10 @@ export class Interpreter extends EmptyVisitor {
         }
     }
     visitIfStatement(ctx: IfStatement): void {
-        if (this.evaluateExpression(ctx.condition)) {
+        const res = this.evaluateExpression(ctx.condition)
+        if (res) {
             ctx.consequent.body.map(x => x.accept(this))
-        } else if (ctx.alternate) {
+        } else if (!res && ctx.alternate) {
             ctx.alternate.body.map(x => x.accept(this))
         }
     }

@@ -84,14 +84,19 @@ export class Parser {
             switch(this.consume().type) {
                 case TokenType.TK_EQUAL_EQUAL:
                     operator = Operator.EQU
+                    break
                 case TokenType.TK_GT:
                     operator = Operator.GRT
+                    break
                 case TokenType.TK_GTE:
                     operator = Operator.GRE
+                    break
                 case TokenType.TK_LS:
                     operator = Operator.LST
+                    break
                 case TokenType.TK_LSE:
                     operator = Operator.LSE
+                    break
             }
             const right = this.term()
             left= new BinaryExpression(left.position, operator!, left, right)
