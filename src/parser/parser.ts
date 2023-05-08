@@ -219,6 +219,32 @@ export class Parser {
         return new WhileStatement(whileTk.position, condition, body)
     }
 
+    private forStmt(): BlockStatement {
+        const forTk = this.consume()
+        const wrappingBody: Statement[] = []
+        this.match(TokenType.TK_OPAREN, '(')
+        if (this.peek().type != TokenType.TK_SEMICOLON) {
+            wrappingBody.push(this.declarationStmt())
+        }
+        this.match(TokenType.TK_SEMICOLON, ';')
+        let condition: Expression = new LiteralExpression(forTk.position, Type.i32, 1)
+        if (this.peek().type != TokenType.TK_SEMICOLON) {
+            condition = this.expression()
+        }
+        this.match(TokenType.TK_SEMICOLON, ';')
+        let assignmentStmt: AssignStatement | undefined = undefined
+        if (this.peek().type != TokenType.TK_CPAREN) {
+            assignmentStmt = this.assignmentStmt()
+        }
+        this.match(TokenType.TK_CPAREN, ')')
+        const body = this.blockStmt()
+        if (assignmentStmt) {
+            body.body.push(assignmentStmt)
+        }
+        wrappingBody.push(new WhileStatement(forTk.position, condition, body))
+        return new BlockStatement(forTk.position, wrappingBody)
+    }
+
     private stmt(): Statement {
         if (this.peek().type == TokenType.TK_LET || this.peek().type == TokenType.TK_CONST) {
             return this.declarationStmt()
@@ -230,6 +256,8 @@ export class Parser {
             return this.ifStmt()
         } else if (this.peek().type == TokenType.TK_WHILE) {
             return this.whileStmt()
+        } else if (this.peek().type == TokenType.TK_FOR) {
+            return this.forStmt()
         } else {
             throw new BSParseException(`Expected a statment but got '${this.peek().value}'`,
                 this.peek(),

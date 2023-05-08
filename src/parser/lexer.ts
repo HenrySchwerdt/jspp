@@ -90,7 +90,8 @@ export class Lexer {
             ['fn', TokenType.TK_FN],
             ['if', TokenType.TK_IF],
             ['else', TokenType.TK_ELSE],
-            ['while', TokenType.TK_WHILE]
+            ['while', TokenType.TK_WHILE],
+            ['for', TokenType.TK_FOR],
         ]
         const startCol = this.col
         for (let keyword of keywords) {
@@ -159,6 +160,9 @@ export class Lexer {
             }
             case ':': {
                 return createToken(TokenType.TK_COLON, this.row, startCol, this.entryPoint, this.fileContent, char)
+            }
+            case ';': {
+                return createToken(TokenType.TK_SEMICOLON, this.row, startCol, this.entryPoint, this.fileContent, char)
             }
             case ',': {
                 return createToken(TokenType.TK_COMMA, this.row, startCol, this.entryPoint, this.fileContent, char)

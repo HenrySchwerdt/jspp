@@ -1,5 +1,5 @@
 import { EmptyVisitor } from "../analysis/symbols";
-import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Variable, VariableExpression, WhileStatement } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 export class STD {
     env: Environment
     constructor(env: Environment) {
@@ -10,10 +10,10 @@ export class STD {
         this.initPrintLn()
     }
     initPrint() {
-        this.env.declare("print", (x: any) => x ? process.stdout.write(x + "") : process.stdout.write(""))
+        this.env.declare("print", (x: any) => x != undefined ? process.stdout.write(x + "") : process.stdout.write(""))
     }
     initPrintLn() {
-        this.env.declare("println", (x: any) => x ? process.stdout.write(x + "\n") : process.stdout.write("\n"))
+        this.env.declare("println", (x: any) => x != undefined ? process.stdout.write(x + "\n") : process.stdout.write("\n"))
     }
 }
 
@@ -96,8 +96,11 @@ export class Interpreter extends EmptyVisitor {
     }
     visitWhileStatement(ctx: WhileStatement): void {
         while(this.evaluateExpression(ctx.condition)) {
-            ctx.body.body.map(x => x.accept(this))
+            ctx.body.accept(this)
         }
+    }
+    visitBlockStatement(ctx: BlockStatement): void {
+        ctx.body.map(stmt => stmt.accept(this))
     }
     visitBinaryExpression(ctx: BinaryExpression): void {
     }
