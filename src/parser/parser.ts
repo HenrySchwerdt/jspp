@@ -176,6 +176,7 @@ export class Parser {
         }
         const parameter = [this.expression()]
         while(this.peek().type == TokenType.TK_COMMA) {
+            this.consume()
             parameter.push(this.expression())
         }
         this.consume()

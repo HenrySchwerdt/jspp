@@ -1,9 +1,4 @@
-fn hallo(): void {
-    println(1)
+fn add(x: i32, y: i32): void {
+    println(x + y)
 }
-
-hallo()
-hallo()
-hallo()
-hallo()
-hallo()
+add(420, 69)

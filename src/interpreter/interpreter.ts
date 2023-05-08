@@ -1,5 +1,5 @@
 import { EmptyVisitor } from "../analysis/symbols";
-import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Variable, VariableExpression, WhileStatement } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Statement, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 export class STD {
     env: Environment
     constructor(env: Environment) {
@@ -65,7 +65,13 @@ export class Interpreter extends EmptyVisitor {
         ctx.callExpression.accept(this)
     }
     visitFnDeclaration(ctx: FnDeclaration): void {
-        this.env.declare(ctx.name, () => {
+        this.env.declare(ctx.name, (parameter: Expression[]) => {
+            let count = 0;
+            const dec : Statement = new DeclarationStatement(ctx.body.position, VarKind.let, ctx.paramter.map(param => {
+                return new AssignStatement(ctx.body.position, new Variable(param.position, param.name, param.type), parameter[count++] )
+            }))
+            const body : Statement[] = [dec].concat(ctx.body.body)
+            ctx.body.body = body
             ctx.body.accept(this)
         })
     }
@@ -143,9 +149,15 @@ export class Interpreter extends EmptyVisitor {
             return expr.value
         }
         if (expr instanceof CallExpression) {
-            const evaluatedParamters = expr.paramters.map(x => this.evaluateExpression(x))
-            const fn = this.env.lookup(expr.name)
-            fn(...evaluatedParamters)
+            if (expr.name == 'print' || expr.name == 'println') {
+                const evaluatedParamters = expr.paramters.map(x => this.evaluateExpression(x))
+                const fn = this.env.lookup(expr.name)
+                fn(...evaluatedParamters)
+            } else {
+                const fn = this.env.lookup(expr.name)
+                fn(expr.paramters)
+            }
+            
         }
     }
 
