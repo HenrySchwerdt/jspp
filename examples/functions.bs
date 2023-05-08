@@ -1,4 +1,10 @@
-fn add(x: i32, y: i32): void {
-    println(x + y)
+let p = 10
+fn count(p: i32): void {
+    if (p <= 0) {
+        println(p)
+    } else {
+        println(p)
+        count(p-1)
+    }
 }
-add(420, 69)
+count(p)

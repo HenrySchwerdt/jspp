@@ -1,5 +1,5 @@
 import { EmptyVisitor } from "../analysis/symbols";
-import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Statement, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 export class STD {
     env: Environment
     constructor(env: Environment) {
@@ -19,7 +19,7 @@ export class STD {
 
 export class Environment {
     private readonly entries = new Map<string, any>()
-    private readonly outer: Environment | undefined
+    readonly outer: Environment | undefined
     constructor(outer: Environment | undefined) {
         this.outer = outer
     }
@@ -48,7 +48,7 @@ export class Environment {
 }
 
 export class Interpreter extends EmptyVisitor {
-    private readonly env: Environment = new Environment(undefined)
+    private env: Environment = new Environment(undefined)
     private isDec: boolean = false
     constructor() {
         super()
@@ -71,8 +71,7 @@ export class Interpreter extends EmptyVisitor {
                 return new AssignStatement(ctx.body.position, new Variable(param.position, param.name, param.type), parameter[count++] )
             }))
             const body : Statement[] = [dec].concat(ctx.body.body)
-            ctx.body.body = body
-            ctx.body.accept(this)
+            new BlockStatement(ctx.body.position, body).accept(this)
         })
     }
     visitProgram(ctx: Program): void {
@@ -98,9 +97,9 @@ export class Interpreter extends EmptyVisitor {
     visitIfStatement(ctx: IfStatement): void {
         const res = this.evaluateExpression(ctx.condition)
         if (res) {
-            ctx.consequent.body.map(x => x.accept(this))
+            ctx.consequent.accept(this)
         } else if (!res && ctx.alternate) {
-            ctx.alternate.body.map(x => x.accept(this))
+            ctx.alternate.accept(this)
         }
     }
     visitWhileStatement(ctx: WhileStatement): void {
@@ -109,7 +108,9 @@ export class Interpreter extends EmptyVisitor {
         }
     }
     visitBlockStatement(ctx: BlockStatement): void {
+        this.beginScope()
         ctx.body.map(stmt => stmt.accept(this))
+        this.endScope()
     }
     visitBinaryExpression(ctx: BinaryExpression): void {
     }
@@ -160,5 +161,10 @@ export class Interpreter extends EmptyVisitor {
             
         }
     }
-
+    beginScope() {
+        this.env = new Environment(this.env);
+    }
+    endScope() {
+        this.env = this.env.outer!
+    }
 }
