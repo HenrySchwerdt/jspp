@@ -1,5 +1,5 @@
 import { BSCompileException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, DeclarationStatement, I32LiteralExpression, Operator, Program, VarKind } from "../representation/ast";
+import { AssignStatement, BinaryExpression, DeclarationStatement, Operator, Program, VarKind } from "../representation/ast";
 import { EmptyVisitor, Identifier, SymbolTable, VariableInfo } from "./symbols";
 
 export class IdentifierPass extends EmptyVisitor {

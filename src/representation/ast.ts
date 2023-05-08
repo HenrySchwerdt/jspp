@@ -45,14 +45,7 @@ export abstract class Visitor {
   abstract visitAssignStatement(ctx: AssignStatement): void;
   abstract visitBinaryExpression(ctx: BinaryExpression): void;
   abstract visitVariableExpression(ctx: VariableExpression): void;
-  abstract visitI8LiteralExpression(ctx: I8LiteralExpression): void;
-  abstract visitI16LiteralExpression(ctx: I16LiteralExpression): void;
-  abstract visitI32LiteralExpression(ctx: I32LiteralExpression): void;
-  abstract visitI64LiteralExpression(ctx: I64LiteralExpression): void;
-  abstract visitStrLiteralExpression(ctx: StrLiteralExpression): void;
-  abstract visitBoolLiteralExpression(ctx: BoolLiteralExpression): void;
-  abstract visitF32LiteralExpression(ctx: F32LiteralExpression): void;
-  abstract visitF64LiteralExpression(ctx: F64LiteralExpression): void;
+  abstract visitLiteralExpression(ctx: LiteralExpression): void;
   abstract visitVariable(ctx: Variable): void;
   abstract visitCallExpression(ctx: CallExpression): void;
   abstract visitCallStatement(ctx: CallStatement): void;
@@ -198,101 +191,21 @@ export class VariableExpression extends Expression {
   }
 }
 
-export class I8LiteralExpression extends Expression {
-  public type: Type = Type.i8;
-  public value: number;
-  constructor(position: Position, value: number) {
-    super(position);
-    this.value = value;
+export class LiteralExpression extends Expression {
+
+  public type: Type
+  public value: any
+  constructor(position: Position, type: Type, value: any) {
+    super(position)
+    this.type = type
+    this.value = value
   }
+
   accept(v: Visitor): void {
-    v.visitI8LiteralExpression(this);
+    v.visitLiteralExpression(this)
   }
 }
 
-export class I16LiteralExpression extends Expression {
-  public type: Type = Type.i16;
-  public value: number;
-  constructor(position: Position, value: number) {
-    super(position);
-    this.value = value;
-  }
-  accept(v: Visitor): void {
-    v.visitI16LiteralExpression(this);
-  }
-}
-
-export class I32LiteralExpression extends Expression {
-  public type: Type = Type.i32;
-  public value: number;
-  constructor(position: Position, value: number) {
-    super(position);
-    this.value = value;
-  }
-  accept(v: Visitor): void {
-    v.visitI32LiteralExpression(this);
-  }
-}
-
-export class I64LiteralExpression extends Expression {
-  public type: Type = Type.i64;
-  public value: number;
-  constructor(position: Position, value: number) {
-    super(position);
-    this.value = value;
-  }
-  accept(v: Visitor): void {
-    v.visitI64LiteralExpression(this);
-  }
-}
-
-export class F32LiteralExpression extends Expression {
-  public type: Type = Type.f32;
-  public value: number;
-  constructor(position: Position, value: number) {
-    super(position);
-    this.value = value;
-  }
-  accept(v: Visitor): void {
-    v.visitF32LiteralExpression(this);
-  }
-}
-
-export class F64LiteralExpression extends Expression {
-  public type: Type = Type.f64;
-  public value: number;
-  constructor(position: Position, value: number) {
-    super(position);
-    this.value = value;
-  }
-  accept(v: Visitor): void {
-    v.visitF64LiteralExpression(this);
-  }
-}
-
-export class BoolLiteralExpression extends Expression {
-  public type: Type = Type.bool;
-  public value: boolean;
-  constructor(position: Position, value: boolean) {
-    super(position);
-    this.value = value;
-  }
-  accept(v: Visitor): void {
-    v.visitBoolLiteralExpression(this);
-  }
-}
-
-export class StrLiteralExpression extends Expression {
-  public type: Type = Type.str;
-  public value: string;
-  constructor(position: Position, value: string) {
-    super(position);
-    this.value = value;
-  }
-  accept(v: Visitor): void {
-    v.visitStrLiteralExpression(this);
-  }
-}
 
 export class Variable extends Node {
   public name: string;

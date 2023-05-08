@@ -1,5 +1,21 @@
 import { EmptyVisitor } from "../analysis/symbols";
-import { AssignStatement, BinaryExpression, BoolLiteralExpression, CallExpression, CallStatement, DeclarationStatement, Expression, F32LiteralExpression, F64LiteralExpression, FnDeclaration, I16LiteralExpression, I32LiteralExpression, I64LiteralExpression, I8LiteralExpression, Operator, Program, StrLiteralExpression, Variable, VariableExpression } from "../representation/ast";
+import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, LiteralExpression, Operator, Program, Variable, VariableExpression } from "../representation/ast";
+export class STD {
+    env: Environment
+    constructor(env: Environment) {
+        this.env = env;
+    }
+    initSTDFunctions() {
+        this.initPrint()
+        this.initPrintLn()
+    }
+    initPrint() {
+        this.env.declare("print", (x: any) => x ? process.stdout.write(x+""): process.stdout.write("") )
+    }
+    initPrintLn() {
+        this.env.declare("println", (x: any) => x ? process.stdout.write(x+"\n"): process.stdout.write("\n"))
+    }
+}
 
 export class Environment {
     private readonly entries = new Map<string, any>()
@@ -34,8 +50,13 @@ export class Environment {
 export class Interpreter extends EmptyVisitor {
     private readonly env : Environment = new Environment(undefined)
     private isDec: boolean = false
+    constructor() {
+        super()
+        new STD(this.env).initSTDFunctions()
+    }
     public interpret(ast: Program) {
         ast.accept(this)
+        
     }
     visitCallExpression(ctx: CallExpression): void {
         this.evaluateExpression(ctx)
@@ -69,22 +90,6 @@ export class Interpreter extends EmptyVisitor {
     }
     visitVariableExpression(ctx: VariableExpression): void {
     }
-    visitI8LiteralExpression(ctx: I8LiteralExpression): void {
-    }
-    visitI16LiteralExpression(ctx: I16LiteralExpression): void {
-    }
-    visitI32LiteralExpression(ctx: I32LiteralExpression): void {
-    }
-    visitI64LiteralExpression(ctx: I64LiteralExpression): void {
-    }
-    visitStrLiteralExpression(ctx: StrLiteralExpression): void {
-    }
-    visitBoolLiteralExpression(ctx: BoolLiteralExpression): void {
-    }
-    visitF32LiteralExpression(ctx: F32LiteralExpression): void {
-    }
-    visitF64LiteralExpression(ctx: F64LiteralExpression): void {
-    }
     visitVariable(ctx: Variable): void {
     }
     evaluateExpression(expr: Expression): any {
@@ -105,12 +110,13 @@ export class Interpreter extends EmptyVisitor {
                     return x * y
             }
         }
-        if (expr instanceof I32LiteralExpression) {
+        if (expr instanceof LiteralExpression) {
             return expr.value
         }
         if (expr instanceof CallExpression) {
             const evaluatedParamters = expr.paramters.map(x => this.evaluateExpression(x))
-            console.log(...evaluatedParamters)
+            const fn = this.env.lookup(expr.name)
+            fn(...evaluatedParamters)
         }
     }
     

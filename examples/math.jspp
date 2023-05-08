@@ -1,6 +1,7 @@
 const TEST: i32 = 200
 let x = 10, y = 10
 y = (10 + 3) * 10
-print(y)
-print(y + 10)
-print(TEST)
+println(y)
+println()
+println(y + 10)
+println(TEST)

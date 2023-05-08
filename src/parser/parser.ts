@@ -1,7 +1,6 @@
 import { BSParseException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, I32LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression } from "../representation/ast";
+import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression } from "../representation/ast";
 import { Position, Token, TokenType } from "./token";
-
 export class Parser {
     private readonly tokens: Token[]
     private cursor: number = 0
@@ -48,7 +47,7 @@ export class Parser {
         }
         if (this.peek().type == TokenType.TK_NUMBER) {
             const token = this.consume()
-            return new I32LiteralExpression(token.position, parseInt(token.value))
+            return new LiteralExpression(token.position, Type.i32, parseInt(token.value))
         } else if (this.peek().type == TokenType.TK_IDENTIFIER) {
             return this.variableExpression()
         }
@@ -135,6 +134,7 @@ export class Parser {
         const name = this.consume()
         this.consume()
         if (this.peek().type == TokenType.TK_CPAREN) {
+            this.consume()
             return new CallExpression(startPos, name.value, [])
         }
         const parameter = [this.expression()]

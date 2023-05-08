@@ -1,5 +1,5 @@
 import { BSCompileException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, BoolLiteralExpression, CallExpression, CallStatement, DeclarationStatement, F32LiteralExpression, F64LiteralExpression, FnDeclaration, I16LiteralExpression, I32LiteralExpression, I64LiteralExpression, I8LiteralExpression, Program, StrLiteralExpression, Type, VarKind, Variable, VariableExpression, Visitor } from "../representation/ast";
+import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, FnDeclaration, LiteralExpression, Program, Type, VarKind, Variable, VariableExpression, Visitor } from "../representation/ast";
 
 export class EmptyVisitor extends Visitor {
   visitCallExpression(ctx: CallExpression): void {
@@ -18,21 +18,7 @@ export class EmptyVisitor extends Visitor {
   }
   visitVariableExpression(ctx: VariableExpression): void {
   }
-  visitI8LiteralExpression(ctx: I8LiteralExpression): void {
-  }
-  visitI16LiteralExpression(ctx: I16LiteralExpression): void {
-  }
-  visitI32LiteralExpression(ctx: I32LiteralExpression): void {
-  }
-  visitI64LiteralExpression(ctx: I64LiteralExpression): void {
-  }
-  visitStrLiteralExpression(ctx: StrLiteralExpression): void {
-  }
-  visitBoolLiteralExpression(ctx: BoolLiteralExpression): void {
-  }
-  visitF32LiteralExpression(ctx: F32LiteralExpression): void {
-  }
-  visitF64LiteralExpression(ctx: F64LiteralExpression): void {
+  visitLiteralExpression(ctx: LiteralExpression): void {
   }
   visitVariable(ctx: Variable): void {
   }

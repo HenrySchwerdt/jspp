@@ -1,10 +1,5 @@
 import commandLineArgs from "command-line-args";
-import { Lexer } from "./parser/lexer";
-import { BSException } from "./exceptions/exceptions";
-import { Parser } from "./parser/parser";
-import { SimplificationPass } from "./analysis/simplification";
-import { IdentifierPass } from "./analysis/identfier";
-import { Interpreter } from "./interpreter/interpreter";
+import { SimulatePipeline } from "./pipelines";
 
 const optionDefinitions = [
   { name: "entry", type: String, defaultOption: true },
@@ -23,31 +18,21 @@ if (options.entry == undefined) {
   console.error("   -c    Compiles the program");
   console.error("ERROR: Provided no entry file to compile or to simulate.");
 } else {
-  try {
-    const lexer = new Lexer(options.entry);
-    const tokens = lexer.tokenize();
-    const parser = new Parser(tokens);
-    const ast = parser.parse();
-    const simplePass = new SimplificationPass();
-    const varPass = new IdentifierPass();
-    const interpret = new Interpreter()
-    // ast.accept(simplePass);
-    ast.accept(varPass)
-    interpret.interpret(ast)
-    // const parser = new Parser(options.entry)
-    // const program = parser.parse()
-    // console.log(JSON.stringify(program, null, 2))
-    // if (options.sim == true) {
-    //   const interpreter = new Interpreter()
-    //   interpreter.interpret(program);
-    // }
-
-    // if (options.compile == true) {
-    //   const compiler = new Compiler(null, null)
-    //   compiler.compile(program);
-    // }
-  } catch (e) {
-    console.log(e);
-    (e as BSException).print();
+  if (options.sim == true) {
+    new SimulatePipeline(options.entry).run()
   }
+
+  // const parser = new Parser(options.entry)
+  // const program = parser.parse()
+  // console.log(JSON.stringify(program, null, 2))
+  // if (options.sim == true) {
+  //   const interpreter = new Interpreter()
+  //   interpreter.interpret(program);
+  // }
+
+  // if (options.compile == true) {
+  //   const compiler = new Compiler(null, null)
+  //   compiler.compile(program);
+  // }
+
 }

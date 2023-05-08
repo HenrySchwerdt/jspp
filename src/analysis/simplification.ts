@@ -1,18 +1,12 @@
 import {
   AssignStatement,
   BinaryExpression,
-  BoolLiteralExpression,
   DeclarationStatement,
-  F32LiteralExpression,
-  F64LiteralExpression,
-  I16LiteralExpression,
-  I32LiteralExpression,
-  I64LiteralExpression,
-  I8LiteralExpression,
+  LiteralExpression,
   Node,
   Operator,
   Program,
-  StrLiteralExpression,
+  Type,
   Variable,
   VariableExpression,
 } from "../representation/ast";
@@ -59,25 +53,26 @@ export class SimplificationPass extends EmptyVisitor {
       ctx.rightOperand.accept(this);
     }
     if (
-      ctx.leftOperand instanceof I32LiteralExpression &&
-      ctx.rightOperand instanceof I32LiteralExpression
+      ctx.leftOperand instanceof LiteralExpression &&
+      ctx.rightOperand instanceof LiteralExpression
     ) {
-      const a = (ctx.leftOperand as I32LiteralExpression).value;
-      const b = (ctx.rightOperand as I32LiteralExpression).value;
-      let simplified: I32LiteralExpression | undefined = undefined;
+      const a = (ctx.leftOperand as LiteralExpression).value;
+      const b = (ctx.rightOperand as LiteralExpression).value;
+      let simplified: LiteralExpression | undefined = undefined;
       switch (ctx.operator) {
         case Operator.ADD:
-          simplified = new I32LiteralExpression(ctx.position, a + b);
+          simplified = new LiteralExpression(ctx.position, Type.i32, a + b);
           break;
         case Operator.SUB:
-          simplified = new I32LiteralExpression(ctx.position, a - b);
+          simplified = new LiteralExpression(ctx.position, Type.i32, a - b);
           break;
         case Operator.MUL:
-          simplified = new I32LiteralExpression(ctx.position, a * b);
+          simplified = new LiteralExpression(ctx.position, Type.i32, a * b);
           break;
         case Operator.DIV:
-          simplified = new I32LiteralExpression(
+          simplified = new LiteralExpression(
             ctx.position,
+            Type.i32,
             Math.floor(a / b)
           );
       }
@@ -95,14 +90,4 @@ export class SimplificationPass extends EmptyVisitor {
     this.lastNode = this.lastNode;
     this.isLeft = isLeft;
   }
-  visitVariableExpression(ctx: VariableExpression): void {}
-  visitI8LiteralExpression(ctx: I8LiteralExpression): void {}
-  visitI16LiteralExpression(ctx: I16LiteralExpression): void {}
-  visitI32LiteralExpression(ctx: I32LiteralExpression): void {}
-  visitI64LiteralExpression(ctx: I64LiteralExpression): void {}
-  visitStrLiteralExpression(ctx: StrLiteralExpression): void {}
-  visitBoolLiteralExpression(ctx: BoolLiteralExpression): void {}
-  visitF32LiteralExpression(ctx: F32LiteralExpression): void {}
-  visitF64LiteralExpression(ctx: F64LiteralExpression): void {}
-  visitVariable(ctx: Variable): void {}
 }
