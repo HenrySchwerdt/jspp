@@ -22,6 +22,7 @@ export enum Type {
   f64,
   str,
   bool,
+  void,
   unknown,
 }
 
@@ -52,6 +53,7 @@ export abstract class Visitor {
   abstract visitIfStatement(ctx: IfStatement): void;
   abstract visitBlockStatement(ctx: BlockStatement): void;
   abstract visitWhileStatement(ctx: WhileStatement): void;
+  abstract visitParameter(ctx: Parameter): void;
 }
 
 export abstract class Node {
@@ -84,9 +86,9 @@ export abstract class Statement extends Node {
 export class FnDeclaration extends Statement {
     public returnType: Type
     public name: string
-    public paramter: Variable[]
-    public body: Statement[]
-    constructor(position: Position, name: string, parameter: Variable[], body: Statement[], returnType: Type) {
+    public paramter: Parameter[]
+    public body: BlockStatement
+    constructor(position: Position, name: string, parameter: Parameter[], body: BlockStatement, returnType: Type) {
         super(position)
         this.name = name
         this.paramter = parameter
@@ -98,6 +100,7 @@ export class FnDeclaration extends Statement {
         v.visitFnDeclaration(this)
     }
 }
+
 export class CallStatement extends Statement {
     public callExpression: CallExpression
     constructor(position: Position, callExpression: CallExpression) {
@@ -195,6 +198,21 @@ export class CallExpression extends Expression {
        v.visitCallExpression(this)
     }
     
+}
+
+export class Parameter extends Expression {
+  name: string
+  type: Type
+  constructor(position: Position, name: string, type: Type) {
+    super(position)
+    this.name = name
+    this.type = type
+  }
+  
+  accept(v: Visitor): void {
+    v.visitParameter(this)
+  }
+  
 }
 
 export class BinaryExpression extends Expression {

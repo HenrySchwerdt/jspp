@@ -1,5 +1,5 @@
 import { BSParseException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, IfStatement, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Parameter, Program, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 import { Position, Token, TokenType } from "./token";
 export class Parser {
     private readonly tokens: Token[]
@@ -27,7 +27,7 @@ export class Parser {
     }
     private match(type: TokenType, expected: string) {
         if (this.peek().type == type) {
-            this.consume()
+            return this.consume()
         } else {
             throw new BSParseException(`Expected '${expected}' after variable assignment, but got ${this.peek().value}.`,
                 this.peek(),
@@ -244,7 +244,55 @@ export class Parser {
         wrappingBody.push(new WhileStatement(forTk.position, condition, body))
         return new BlockStatement(forTk.position, wrappingBody)
     }
+    private type(): Type {
+        const type = this.consume()
+        switch(type.type) {
+            case TokenType.TK_I8:
+                return Type.i8
+            case TokenType.TK_I16:
+                return Type.i16
+            case TokenType.TK_I32:
+                return Type.i32
+            case TokenType.TK_I64:
+                return Type.i64
+            case TokenType.TK_F32:
+                return Type.f32
+            case TokenType.TK_F64:
+                return Type.f64
+            case TokenType.TK_STR:
+                return Type.str
+            case TokenType.TK_VOID:
+                return Type.void
+            default:
+                throw new BSParseException(`Error expected type, but got '${type.value}'.`, type, type.position.file)
+        }
+    }
 
+    private parameter(): Parameter {
+        const name = this.match(TokenType.TK_IDENTIFIER, "Identifier")
+        this.match(TokenType.TK_COLON, ':')
+        const type = this.type()
+        return new Parameter(name.position, name.value, type)
+    }
+
+    private fnDeclaration(): FnDeclaration {
+        const fnTk = this.consume()
+        const name = this.match(TokenType.TK_IDENTIFIER, "Identifier")
+        this.match(TokenType.TK_OPAREN, "(")
+        const parameter: Parameter[] = []
+        if (this.peek().type != TokenType.TK_CPAREN) {
+            parameter.push(this.parameter())
+            while(this.peek().type == TokenType.TK_COMMA) {
+                this.consume()
+                parameter.push(this.parameter())
+            }
+        }
+        this.consume()
+        this.match(TokenType.TK_COLON, ':')
+        const returnType = this.type()
+        const body = this.blockStmt()
+        return new FnDeclaration(fnTk.position, name.value, parameter, body, returnType)
+    }
     private stmt(): Statement {
         if (this.peek().type == TokenType.TK_LET || this.peek().type == TokenType.TK_CONST) {
             return this.declarationStmt()
@@ -258,6 +306,8 @@ export class Parser {
             return this.whileStmt()
         } else if (this.peek().type == TokenType.TK_FOR) {
             return this.forStmt()
+        } else if (this.peek().type == TokenType.TK_FN) {
+            return this.fnDeclaration()
         } else {
             throw new BSParseException(`Expected a statment but got '${this.peek().value}'`,
                 this.peek(),

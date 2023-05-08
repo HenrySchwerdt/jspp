@@ -65,6 +65,9 @@ export class Interpreter extends EmptyVisitor {
         ctx.callExpression.accept(this)
     }
     visitFnDeclaration(ctx: FnDeclaration): void {
+        this.env.declare(ctx.name, () => {
+            ctx.body.accept(this)
+        })
     }
     visitProgram(ctx: Program): void {
         for (let stmt of ctx.body) {

@@ -33,6 +33,7 @@ export enum TokenType {
     TK_FN,
     TK_COLON,
     TK_SEMICOLON,
+    TK_RETURN,
     TK_IDENTIFIER,
     TK_EOF,
     TK_ERROR,

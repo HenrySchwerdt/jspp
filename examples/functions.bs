@@ -1,0 +1,9 @@
+fn hallo(): void {
+    println(1)
+}
+
+hallo()
+hallo()
+hallo()
+hallo()
+hallo()
