@@ -35,6 +35,17 @@ export class Parser {
     }
 
     private factor(): Expression {
+        if (this.peek().type == TokenType.TK_OPAREN) {
+            this.consume()
+            const expr = this.expression()
+            if (this.peek().type != TokenType.TK_CPAREN) {
+                throw new BSParseException(`Expected ')' after variable assignment, but got ${this.peek().value}.`,
+                this.peek(),
+                this.peek().position.file)
+            }
+            this.consume()
+            return expr
+        }
         if (this.peek().type == TokenType.TK_NUMBER) {
             const token = this.consume()
             return new I32LiteralExpression(token.position, parseInt(token.value))
