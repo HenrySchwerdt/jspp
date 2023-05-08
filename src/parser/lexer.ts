@@ -90,6 +90,7 @@ export class Lexer {
             ['fn', TokenType.TK_FN],
             ['if', TokenType.TK_IF],
             ['else', TokenType.TK_ELSE],
+            ['while', TokenType.TK_WHILE]
         ]
         const startCol = this.col
         for (let keyword of keywords) {

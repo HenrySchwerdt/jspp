@@ -1,5 +1,5 @@
 import { BSParseException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, IfStatement, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, IfStatement, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 import { Position, Token, TokenType } from "./token";
 export class Parser {
     private readonly tokens: Token[]
@@ -210,6 +210,15 @@ export class Parser {
         return new IfStatement(ifTk.position, condition, consequent, alternate)
     }
 
+    private whileStmt(): WhileStatement {
+        const whileTk = this.consume()
+        this.match(TokenType.TK_OPAREN, '(')
+        const condition = this.expression()
+        this.match(TokenType.TK_CPAREN, ')')
+        const body = this.blockStmt()
+        return new WhileStatement(whileTk.position, condition, body)
+    }
+
     private stmt(): Statement {
         if (this.peek().type == TokenType.TK_LET || this.peek().type == TokenType.TK_CONST) {
             return this.declarationStmt()
@@ -219,8 +228,9 @@ export class Parser {
             return this.assignmentStmt()
         } else if (this.peek().type == TokenType.TK_IF) {
             return this.ifStmt()
-        } 
-        else {
+        } else if (this.peek().type == TokenType.TK_WHILE) {
+            return this.whileStmt()
+        } else {
             throw new BSParseException(`Expected a statment but got '${this.peek().value}'`,
                 this.peek(),
                 this.peek().position.file)

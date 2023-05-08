@@ -1,5 +1,5 @@
 import { EmptyVisitor } from "../analysis/symbols";
-import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Variable, VariableExpression } from "../representation/ast";
+import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 export class STD {
     env: Environment
     constructor(env: Environment) {
@@ -92,6 +92,11 @@ export class Interpreter extends EmptyVisitor {
             ctx.consequent.body.map(x => x.accept(this))
         } else if (!res && ctx.alternate) {
             ctx.alternate.body.map(x => x.accept(this))
+        }
+    }
+    visitWhileStatement(ctx: WhileStatement): void {
+        while(this.evaluateExpression(ctx.condition)) {
+            ctx.body.body.map(x => x.accept(this))
         }
     }
     visitBinaryExpression(ctx: BinaryExpression): void {

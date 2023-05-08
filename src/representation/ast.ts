@@ -51,6 +51,7 @@ export abstract class Visitor {
   abstract visitCallStatement(ctx: CallStatement): void;
   abstract visitIfStatement(ctx: IfStatement): void;
   abstract visitBlockStatement(ctx: BlockStatement): void;
+  abstract visitWhileStatement(ctx: WhileStatement): void;
 }
 
 export abstract class Node {
@@ -133,6 +134,20 @@ export class BlockStatement extends Statement {
     v.visitBlockStatement(this)
   }
 }
+export class WhileStatement extends Statement {
+ 
+  public condition: Expression
+  public body: BlockStatement
+  constructor(position: Position, condition: Expression, body: BlockStatement) {
+    super(position)
+    this.condition = condition
+    this.body = body
+  }
+  accept(v: Visitor): void {
+    v.visitWhileStatement(this)
+  }
+}
+
 export class IfStatement extends Statement {
   public condition: Expression
   public consequent: BlockStatement

@@ -26,6 +26,7 @@ export enum TokenType {
     TK_VOID,
     TK_IF,
     TK_ELSE,
+    TK_WHILE,
     TK_LET,
     TK_CONST,
     TK_FN,
