@@ -1,2 +1,4 @@
+const TEST: i32 = 100
 let x: i32 = 15, y = 200
 x = x + 10 * 12 + 12 - 12 + 5
+TEST = 10

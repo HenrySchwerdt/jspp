@@ -15,10 +15,10 @@ import {
   StrLiteralExpression,
   Variable,
   VariableExpression,
-  Visitor,
 } from "../representation/ast";
+import { EmptyVisitor } from "./symbols";
 
-export class SimplificationPass extends Visitor {
+export class SimplificationPass extends EmptyVisitor {
   lastNode: Node | undefined = undefined;
   isLeft: boolean | undefined = undefined;
   visitProgram(ctx: Program): void {

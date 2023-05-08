@@ -3,6 +3,7 @@ import { Lexer } from "./parser/lexer";
 import { BSException } from "./exceptions/exceptions";
 import { Parser } from "./parser/parser";
 import { SimplificationPass } from "./analysis/simplification";
+import { IdentifierPass } from "./analysis/identfier";
 
 const optionDefinitions = [
   { name: "entry", type: String, defaultOption: true },
@@ -26,9 +27,10 @@ if (options.entry == undefined) {
     const tokens = lexer.tokenize();
     const parser = new Parser(tokens);
     const ast = parser.parse();
-    const pass = new SimplificationPass();
-    ast.accept(pass);
-    console.log(JSON.stringify(ast, null, 2));
+    const simplePass = new SimplificationPass();
+    const varPass = new IdentifierPass();
+    ast.accept(simplePass);
+    ast.accept(varPass)
     // const parser = new Parser(options.entry)
     // const program = parser.parse()
     // console.log(JSON.stringify(program, null, 2))
@@ -42,9 +44,6 @@ if (options.entry == undefined) {
     //   compiler.compile(program);
     // }
   } catch (e) {
-    console.log(e);
     (e as BSException).print();
-    // console.log(e)
-    // e.print()
   }
 }

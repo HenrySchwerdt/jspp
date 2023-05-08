@@ -79,7 +79,7 @@ export class Lexer {
     }
 
     private keyword(): Token {
-        const keywords: [string, TokenType][] = [['let', TokenType.TK_LET], ['const', TokenType.TK_LET], ['i8', TokenType.TK_I8], ['i16', TokenType.TK_I16],
+        const keywords: [string, TokenType][] = [['let', TokenType.TK_LET], ['const', TokenType.TK_CONST], ['i8', TokenType.TK_I8], ['i16', TokenType.TK_I16],
         ['i32', TokenType.TK_I32], ['i64', TokenType.TK_I64]]
         const startCol = this.col
         for (let keyword of keywords) {
