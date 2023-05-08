@@ -1,5 +1,5 @@
 import { BSParseException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, CallExpression, CallStatement, DeclarationStatement, Expression, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, IfStatement, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression } from "../representation/ast";
 import { Position, Token, TokenType } from "./token";
 export class Parser {
     private readonly tokens: Token[]
@@ -25,6 +25,15 @@ export class Parser {
         }
         return this.tokens[this.cursor++]
     }
+    private match(type: TokenType, expected: string) {
+        if (this.peek().type == type) {
+            this.consume()
+        } else {
+            throw new BSParseException(`Expected '${expected}' after variable assignment, but got ${this.peek().value}.`,
+                this.peek(),
+                this.peek().position.file) 
+        }
+    }
     private variable(): Variable {
         const ident = this.consume()
         return new Variable(ident.position, ident.value, Type.unknown)
@@ -45,6 +54,7 @@ export class Parser {
             this.consume()
             return expr
         }
+        
         if (this.peek().type == TokenType.TK_NUMBER) {
             const token = this.consume()
             return new LiteralExpression(token.position, Type.i32, parseInt(token.value))
@@ -66,12 +76,34 @@ export class Parser {
         }
         return left
     }
+    
+    private comp(): Expression {
+        let left = this.term()
+        while([TokenType.TK_EQUAL_EQUAL, TokenType.TK_GT, TokenType.TK_GTE, TokenType.TK_LS, TokenType.TK_LSE].includes(this.peek().type)) {
+            let operator: Operator | undefined = undefined
+            switch(this.consume().type) {
+                case TokenType.TK_EQUAL_EQUAL:
+                    operator = Operator.EQU
+                case TokenType.TK_GT:
+                    operator = Operator.GRT
+                case TokenType.TK_GTE:
+                    operator = Operator.GRE
+                case TokenType.TK_LS:
+                    operator = Operator.LST
+                case TokenType.TK_LSE:
+                    operator = Operator.LSE
+            }
+            const right = this.term()
+            left= new BinaryExpression(left.position, operator!, left, right)
+        }
+        return left
+    }
 
     private expression(): Expression {
-        let left = this.term()
+        let left = this.comp()
         while([TokenType.TK_PLUS, TokenType.TK_MINUS].includes(this.peek().type)) {
             const operator = this.consume().type == TokenType.TK_PLUS ? Operator.ADD : Operator.SUB;
-            const right = this.term()
+            const right = this.comp()
             left = new BinaryExpression(left.position, operator, left, right) 
         }
         return left
@@ -149,6 +181,31 @@ export class Parser {
         const callExpression = this.callExpression()
         return new CallStatement(startPos, callExpression)
     }
+    private blockStmt(): BlockStatement {
+        const openBrace = this.consume()
+        const body = []
+        while(this.peek().type != TokenType.TK_CBRACE) {
+            body.push(this.stmt())
+        }
+        this.consume()
+        return new BlockStatement(openBrace.position, body)
+    }
+
+    private ifStmt(): IfStatement {
+        const ifTk = this.consume()
+        this.match(TokenType.TK_OPAREN, '(')
+        const condition = this.expression()
+        this.match(TokenType.TK_CPAREN, ')')
+        const consequent = this.blockStmt()
+        this.consume()
+        let alternate: BlockStatement | undefined = undefined
+        if (this.peek().type == TokenType.TK_ELSE) {
+            this.consume()
+            alternate = this.blockStmt()
+        }
+        return new IfStatement(ifTk.position, condition, consequent, alternate)
+    }
+
     private stmt(): Statement {
         if (this.peek().type == TokenType.TK_LET || this.peek().type == TokenType.TK_CONST) {
             return this.declarationStmt()
@@ -156,7 +213,10 @@ export class Parser {
             return this.callStmt()
         } else if (this.peek().type == TokenType.TK_IDENTIFIER) {
             return this.assignmentStmt()
-        } else {
+        } else if (this.peek().type == TokenType.TK_IF) {
+            return this.ifStmt()
+        } 
+        else {
             throw new BSParseException(`Expected a statment but got '${this.peek().value}'`,
                 this.peek(),
                 this.peek().position.file)

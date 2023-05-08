@@ -89,7 +89,7 @@ export class Lexer {
             ['void', TokenType.TK_VOID],
             ['fn', TokenType.TK_FN],
             ['if', TokenType.TK_IF],
-            ['else', TokenType.TK_ELSE]
+            ['else', TokenType.TK_ELSE],
         ]
         const startCol = this.col
         for (let keyword of keywords) {
@@ -163,7 +163,25 @@ export class Lexer {
                 return createToken(TokenType.TK_COMMA, this.row, startCol, this.entryPoint, this.fileContent, char)
             }
             case '=': {
-                return createToken(TokenType.TK_EQUAL, this.row, startCol, this.entryPoint, this.fileContent, char)
+                if (this.peek() == '=') {
+                    return createToken(TokenType.TK_EQUAL_EQUAL, this.row, startCol, this.entryPoint, this.fileContent, char+this.consume())
+                } else {
+                    return createToken(TokenType.TK_EQUAL, this.row, startCol, this.entryPoint, this.fileContent, char)
+                }
+            }
+            case '<': {
+                if (this.peek() == '=') {
+                    return createToken(TokenType.TK_LSE, this.row, startCol, this.entryPoint, this.fileContent, char+this.consume())
+                } else {
+                    return createToken(TokenType.TK_LS, this.row, startCol, this.entryPoint, this.fileContent, char)
+                }
+            }
+            case '>': {
+                if (this.peek() == '=') {
+                    return createToken(TokenType.TK_GTE, this.row, startCol, this.entryPoint, this.fileContent, char+this.consume())
+                } else {
+                    return createToken(TokenType.TK_GT, this.row, startCol, this.entryPoint, this.fileContent, char)
+                }
             }
             default: {
                 const errorToken = createToken(TokenType.TK_ERROR, this.row, startCol, this.entryPoint, this.fileContent, char)

@@ -49,6 +49,8 @@ export abstract class Visitor {
   abstract visitVariable(ctx: Variable): void;
   abstract visitCallExpression(ctx: CallExpression): void;
   abstract visitCallStatement(ctx: CallStatement): void;
+  abstract visitIfStatement(ctx: IfStatement): void;
+  abstract visitBlockStatement(ctx: BlockStatement): void;
 }
 
 export abstract class Node {
@@ -95,7 +97,6 @@ export class FnDeclaration extends Statement {
         v.visitFnDeclaration(this)
     }
 }
-
 export class CallStatement extends Statement {
     public callExpression: CallExpression
     constructor(position: Position, callExpression: CallExpression) {
@@ -106,8 +107,6 @@ export class CallStatement extends Statement {
         v.visitCallStatement(this)
     }
 }
-
-
 export class DeclarationStatement extends Statement {
   public kind: VarKind;
   public declarations: AssignStatement[];
@@ -124,7 +123,30 @@ export class DeclarationStatement extends Statement {
     v.visitDeclarationStatement(this);
   }
 }
-
+export class BlockStatement extends Statement {
+  public body: Statement[]
+  constructor(position: Position, body: Statement[]) {
+    super(position)
+    this.body = body
+  }
+  accept(v: Visitor): void {
+    v.visitBlockStatement(this)
+  }
+}
+export class IfStatement extends Statement {
+  public condition: Expression
+  public consequent: BlockStatement
+  public alternate: BlockStatement | undefined
+  constructor(position: Position, condition: Expression, consequent: BlockStatement, alternate: BlockStatement | undefined) {
+    super(position)
+    this.condition = condition
+    this.consequent = consequent
+    this.alternate = alternate
+  }
+  accept(v: Visitor): void {
+    v.visitIfStatement(this)
+  }
+}
 export class AssignStatement extends Statement {
   public target: Variable;
   public value: Expression;

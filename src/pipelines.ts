@@ -12,12 +12,12 @@ export class SimulatePipeline {
     }
     run() {
         try {
-            const lexer = new Lexer(this.entry)
-            const parser = new Parser(lexer.tokenize())
+            const parser = new Parser(new Lexer(this.entry).tokenize())
             const ast = parser.parse()
-            new SimplificationPass().pass(ast)
-            new IdentifierPass().pass(ast)
-            new Interpreter().interpret(ast)
+            console.log(JSON.stringify(ast, null, 2))
+            // new SimplificationPass().pass(ast)
+            // new IdentifierPass().pass(ast)
+            // new Interpreter().interpret(ast)
         } catch (e) {
             (e as BSException).print();
         }

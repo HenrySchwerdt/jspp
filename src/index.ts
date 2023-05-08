@@ -21,18 +21,4 @@ if (options.entry == undefined) {
   if (options.sim == true) {
     new SimulatePipeline(options.entry).run()
   }
-
-  // const parser = new Parser(options.entry)
-  // const program = parser.parse()
-  // console.log(JSON.stringify(program, null, 2))
-  // if (options.sim == true) {
-  //   const interpreter = new Interpreter()
-  //   interpreter.interpret(program);
-  // }
-
-  // if (options.compile == true) {
-  //   const compiler = new Compiler(null, null)
-  //   compiler.compile(program);
-  // }
-
 }
