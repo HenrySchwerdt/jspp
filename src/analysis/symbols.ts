@@ -1,5 +1,5 @@
 import { BSCompileException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, FnDeclaration, IfStatement, LiteralExpression, Parameter, Program, Type, VarKind, Variable, VariableExpression, Visitor, WhileStatement } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, FnDeclaration, IfStatement, LiteralExpression, Parameter, Program, ReturnStatement, Type, VarKind, Variable, VariableExpression, Visitor, WhileStatement } from "../representation/ast";
 
 export class EmptyVisitor extends Visitor {
   visitCallExpression(ctx: CallExpression): void {
@@ -29,6 +29,8 @@ export class EmptyVisitor extends Visitor {
   visitWhileStatement(ctx: WhileStatement): void { 
   }
   visitParameter(ctx: Parameter): void {
+  }
+  visitReturnStatement(ctx: ReturnStatement): void {
   }
   
 }

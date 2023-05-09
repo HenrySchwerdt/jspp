@@ -1,5 +1,5 @@
 import { EmptyVisitor } from "../analysis/symbols";
-import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Program, ReturnStatement, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 export class STD {
     env: Environment
     constructor(env: Environment) {
@@ -14,6 +14,14 @@ export class STD {
     }
     initPrintLn() {
         this.env.declare("println", (x: any) => x != undefined ? process.stdout.write(x + "\n") : process.stdout.write("\n"))
+    }
+}
+
+export class Return extends Error {
+    value: any
+    constructor(value: any) {
+        super("Return")
+        this.value = value
     }
 }
 
@@ -70,8 +78,26 @@ export class Interpreter extends EmptyVisitor {
             const dec : Statement = new DeclarationStatement(ctx.body.position, VarKind.let, ctx.paramter.map(param => {
                 return new AssignStatement(ctx.body.position, new Variable(param.position, param.name, param.type), parameter[count++] )
             }))
-            const body : Statement[] = [dec].concat(ctx.body.body)
-            new BlockStatement(ctx.body.position, body).accept(this)
+            const body: Statement[] = [dec].concat(ctx.body.body)
+            const block = new BlockStatement(ctx.body.position, body)
+            this.beginScope()
+            let ret : any = undefined
+            for (let stmt of block.body) {
+                if (stmt instanceof ReturnStatement)  {
+                    if (stmt.value) {
+                        ret = this.evaluateExpression(stmt.value!)
+                    }
+                }
+                try {
+                    stmt.accept(this)
+                } catch(e) {
+                    ret = (e as Return).value
+                    break
+                }
+               
+            }
+            this.endScope()
+            return ret
         })
     }
     visitProgram(ctx: Program): void {
@@ -103,14 +129,23 @@ export class Interpreter extends EmptyVisitor {
         }
     }
     visitWhileStatement(ctx: WhileStatement): void {
-        while(this.evaluateExpression(ctx.condition)) {
+        while (this.evaluateExpression(ctx.condition)) {
             ctx.body.accept(this)
         }
     }
     visitBlockStatement(ctx: BlockStatement): void {
         this.beginScope()
-        ctx.body.map(stmt => stmt.accept(this))
+        for (let stmt of ctx.body) {
+            if (stmt instanceof ReturnStatement) {
+                let value = stmt.value ? this.evaluateExpression(stmt.value) : 1
+                this.endScope()
+                throw new Return(value)
+            }
+            stmt.accept(this)
+            
+        }
         this.endScope()
+
     }
     visitBinaryExpression(ctx: BinaryExpression): void {
     }
@@ -125,6 +160,7 @@ export class Interpreter extends EmptyVisitor {
         if (expr instanceof BinaryExpression) {
             const x = this.evaluateExpression(expr.leftOperand)
             const y = this.evaluateExpression(expr.rightOperand)
+
             switch (expr.operator) {
                 case Operator.ADD:
                     return x + y
@@ -156,9 +192,9 @@ export class Interpreter extends EmptyVisitor {
                 fn(...evaluatedParamters)
             } else {
                 const fn = this.env.lookup(expr.name)
-                fn(expr.paramters)
+                const value = fn(expr.paramters)
+                return value
             }
-            
         }
     }
     beginScope() {

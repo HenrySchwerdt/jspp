@@ -54,13 +54,16 @@ export abstract class Visitor {
   abstract visitBlockStatement(ctx: BlockStatement): void;
   abstract visitWhileStatement(ctx: WhileStatement): void;
   abstract visitParameter(ctx: Parameter): void;
+  abstract visitReturnStatement(ctx: ReturnStatement): void;
 }
 
 export abstract class Node {
   public position: Position;
+  public className: string
 
-  constructor(position: Position) {
+  constructor(position: Position, name: string) {
     this.position = position;
+    this.className = name
   }
   abstract accept(v: Visitor): void;
 }
@@ -68,7 +71,7 @@ export abstract class Node {
 export class Program extends Node {
   body: Statement[];
   constructor(position: Position, body: Statement[]) {
-    super(position);
+    super(position, "Program");
     this.body = body;
   }
   accept(v: Visitor): void {
@@ -77,8 +80,8 @@ export class Program extends Node {
 }
 
 export abstract class Statement extends Node {
-  constructor(position: Position) {
-    super(position);
+  constructor(position: Position, className: string) {
+    super(position, className);
   }
 }
 
@@ -89,7 +92,7 @@ export class FnDeclaration extends Statement {
     public paramter: Parameter[]
     public body: BlockStatement
     constructor(position: Position, name: string, parameter: Parameter[], body: BlockStatement, returnType: Type) {
-        super(position)
+        super(position, "FnDeclaration")
         this.name = name
         this.paramter = parameter
         this.body = body
@@ -104,7 +107,7 @@ export class FnDeclaration extends Statement {
 export class CallStatement extends Statement {
     public callExpression: CallExpression
     constructor(position: Position, callExpression: CallExpression) {
-        super(position)
+        super(position, "CallStatement")
         this.callExpression = callExpression
     }
     accept(v: Visitor): void {
@@ -119,7 +122,7 @@ export class DeclarationStatement extends Statement {
     kind: VarKind,
     declarations: AssignStatement[]
   ) {
-    super(position);
+    super(position, "DeclarationStatement");
     this.kind = kind;
     this.declarations = declarations;
   }
@@ -130,7 +133,7 @@ export class DeclarationStatement extends Statement {
 export class BlockStatement extends Statement {
   public body: Statement[]
   constructor(position: Position, body: Statement[]) {
-    super(position)
+    super(position, "BlockStatement")
     this.body = body
   }
   accept(v: Visitor): void {
@@ -142,7 +145,7 @@ export class WhileStatement extends Statement {
   public condition: Expression
   public body: BlockStatement
   constructor(position: Position, condition: Expression, body: BlockStatement) {
-    super(position)
+    super(position, "WhileStatement")
     this.condition = condition
     this.body = body
   }
@@ -156,7 +159,7 @@ export class IfStatement extends Statement {
   public consequent: BlockStatement
   public alternate: BlockStatement | undefined
   constructor(position: Position, condition: Expression, consequent: BlockStatement, alternate: BlockStatement | undefined) {
-    super(position)
+    super(position, "IfStatement")
     this.condition = condition
     this.consequent = consequent
     this.alternate = alternate
@@ -169,7 +172,7 @@ export class AssignStatement extends Statement {
   public target: Variable;
   public value: Expression;
   constructor(position: Position, target: Variable, value: Expression) {
-    super(position);
+    super(position, "AssignStatement");
     this.target = target;
     this.value = value;
   }
@@ -177,11 +180,23 @@ export class AssignStatement extends Statement {
     v.visitAssignStatement(this);
   }
 }
+export class ReturnStatement extends Statement {
+  public value: Expression | undefined
+
+  constructor(position: Position, value: Expression | undefined) {
+    super(position, "ReturnStatement")
+    this.value = value
+
+  }
+  accept(v: Visitor): void {
+    v.visitReturnStatement(this)
+  }
+}
 
 export abstract class Expression extends Node {
   public dataType: Type = Type.unknown;
-  constructor(position: Position) {
-    super(position);
+  constructor(position: Position, name: string) {
+    super(position, name);
   }
 }
 
@@ -189,7 +204,7 @@ export class CallExpression extends Expression {
     public name: string
     public paramters: Expression[]
     constructor(position: Position, name: string, parameters: Expression[]) {
-        super(position)
+        super(position, "CallExpression")
         this.name = name
         this.paramters = parameters
     }
@@ -204,7 +219,7 @@ export class Parameter extends Expression {
   name: string
   type: Type
   constructor(position: Position, name: string, type: Type) {
-    super(position)
+    super(position, "Parameter")
     this.name = name
     this.type = type
   }
@@ -225,7 +240,7 @@ export class BinaryExpression extends Expression {
     leftOperand: Expression,
     rightOperand: Expression
   ) {
-    super(position);
+    super(position, "BinaryExpression");
     this.operator = operator;
     this.leftOperand = leftOperand;
     this.rightOperand = rightOperand;
@@ -238,7 +253,7 @@ export class BinaryExpression extends Expression {
 export class VariableExpression extends Expression {
   public variable: Variable;
   constructor(position: Position, variable: Variable) {
-    super(position);
+    super(position, "VariableExpression");
     this.variable = variable;
   }
   accept(v: Visitor): void {
@@ -251,7 +266,7 @@ export class LiteralExpression extends Expression {
   public type: Type
   public value: any
   constructor(position: Position, type: Type, value: any) {
-    super(position)
+    super(position, "LiteralExpression")
     this.type = type
     this.value = value
   }
@@ -266,7 +281,7 @@ export class Variable extends Node {
   public name: string;
   public type: Type;
   constructor(position: Position, name: string, type: Type) {
-    super(position);
+    super(position, "Variable");
     this.name = name;
     this.type = type;
   }

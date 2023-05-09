@@ -1,5 +1,5 @@
 import { BSParseException } from "../exceptions/exceptions";
-import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Parameter, Program, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
+import { AssignStatement, BinaryExpression, BlockStatement, CallExpression, CallStatement, DeclarationStatement, Expression, FnDeclaration, IfStatement, LiteralExpression, Operator, Parameter, Program, ReturnStatement, Statement, Type, VarKind, Variable, VariableExpression, WhileStatement } from "../representation/ast";
 import { Position, Token, TokenType } from "./token";
 export class Parser {
     private readonly tokens: Token[]
@@ -58,6 +58,8 @@ export class Parser {
         if (this.peek().type == TokenType.TK_NUMBER) {
             const token = this.consume()
             return new LiteralExpression(token.position, Type.i32, parseInt(token.value))
+        } else if (this.peek().type == TokenType.TK_IDENTIFIER && this.npeek(1).type == TokenType.TK_OPAREN) {
+            return this.callExpression()
         } else if (this.peek().type == TokenType.TK_IDENTIFIER) {
             return this.variableExpression()
         }
@@ -294,6 +296,15 @@ export class Parser {
         const body = this.blockStmt()
         return new FnDeclaration(fnTk.position, name.value, parameter, body, returnType)
     }
+    private returnStatement(): ReturnStatement {
+        const tk = this.match(TokenType.TK_RETURN, "return")
+        if (this.peek().type == TokenType.TK_IDENTIFIER) {
+            return new ReturnStatement(tk.position, this.expression())
+        } else if (this.peek().type == TokenType.TK_NUMBER) {
+            return new ReturnStatement(tk.position, this.expression())
+        }
+        return new ReturnStatement(tk.position, undefined)
+    }
     private stmt(): Statement {
         if (this.peek().type == TokenType.TK_LET || this.peek().type == TokenType.TK_CONST) {
             return this.declarationStmt()
@@ -309,6 +320,8 @@ export class Parser {
             return this.forStmt()
         } else if (this.peek().type == TokenType.TK_FN) {
             return this.fnDeclaration()
+        } else if (this.peek().type == TokenType.TK_RETURN) {
+            return this.returnStatement()
         } else {
             throw new BSParseException(`Expected a statment but got '${this.peek().value}'`,
                 this.peek(),
