@@ -80,24 +80,7 @@ export class Interpreter extends EmptyVisitor {
             }))
             const body: Statement[] = [dec].concat(ctx.body.body)
             const block = new BlockStatement(ctx.body.position, body)
-            this.beginScope()
-            let ret : any = undefined
-            for (let stmt of block.body) {
-                if (stmt instanceof ReturnStatement)  {
-                    if (stmt.value) {
-                        ret = this.evaluateExpression(stmt.value!)
-                    }
-                }
-                try {
-                    stmt.accept(this)
-                } catch(e) {
-                    ret = (e as Return).value
-                    break
-                }
-               
-            }
-            this.endScope()
-            return ret
+            block.accept(this)
         })
     }
     visitProgram(ctx: Program): void {
@@ -133,19 +116,21 @@ export class Interpreter extends EmptyVisitor {
             ctx.body.accept(this)
         }
     }
+    visitReturnStatement(ctx: ReturnStatement): void {
+        const value = ctx.value ? this.evaluateExpression(ctx.value) : undefined
+        throw new Return(value)
+    }
     visitBlockStatement(ctx: BlockStatement): void {
         this.beginScope()
-        for (let stmt of ctx.body) {
-            if (stmt instanceof ReturnStatement) {
-                let value = stmt.value ? this.evaluateExpression(stmt.value) : 1
-                this.endScope()
-                throw new Return(value)
+        try {
+            for (let stmt of ctx.body) {
+                stmt.accept(this)
             }
-            stmt.accept(this)
-            
+        } catch(e) {
+            this.endScope()
+            throw (e as Return)
         }
         this.endScope()
-
     }
     visitBinaryExpression(ctx: BinaryExpression): void {
     }
@@ -192,8 +177,11 @@ export class Interpreter extends EmptyVisitor {
                 fn(...evaluatedParamters)
             } else {
                 const fn = this.env.lookup(expr.name)
-                const value = fn(expr.paramters)
-                return value
+                try {
+                    fn(expr.paramters)
+                } catch(e) {
+                    return (e as Return).value
+                }
             }
         }
     }
